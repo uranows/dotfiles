@@ -17,7 +17,7 @@
 # --- Interpreters ---
 # Explicitly tell chezmoi how to run .ps1 files on Windows
 [interpreters]
-  [interpreters.ps1] # Match files ending in .ps1
+  [interpreters.".ps1.tmpl"] # Match files ending in .ps1.tmpl (more specific)
     command = "powershell.exe"
     # Use common arguments to bypass profile loading and execution policy for the script run
     args = ["-NoProfile", "-NoLogo", "-ExecutionPolicy", "Bypass", "-File"]
