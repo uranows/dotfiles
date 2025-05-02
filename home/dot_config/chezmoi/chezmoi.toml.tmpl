@@ -13,7 +13,8 @@
 # Map Windows Terminal Settings from apps/ directory
 # Target path uses templating to get the dynamic LOCALAPPDATA path
 # NOTE: Assumes the common package identifier '_8wekyb3d8bbwe'. This might need adjustment in rare cases.
-["{{ joinPath .chezmoi.env.LOCALAPPDATA \"Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json\" }}"]
+# Corrected joinPath usage (removed inner escaped quotes):
+["{{ joinPath .chezmoi.env.LOCALAPPDATA "Packages" "Microsoft.WindowsTerminal_8wekyb3d8bbwe" "LocalState" "settings.json" }}"]
     source = "apps/windows_terminal/windows-terminal-settings.json"
     type = "file" # Can be file or template
 
