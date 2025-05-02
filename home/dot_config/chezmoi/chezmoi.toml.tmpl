@@ -15,13 +15,7 @@
 {{ end -}}
 
 # --- Interpreters ---
-# Explicitly tell chezmoi how to run .ps1 files on Windows
-# Trying .ps1.tmpl key again, maybe needed internally despite rename?
-[interpreters]
-  [interpreters.".ps1.tmpl"] # Match files ending in .ps1.tmpl
-    command = "powershell.exe"
-    # Use common arguments to bypass profile loading and execution policy for the script run
-    args = ["-NoProfile", "-NoLogo", "-ExecutionPolicy", "Bypass", "-File"]
+# Removed - Relying on default handling for scripts in .chezmoiscripts
 
 # --- General chezmoi settings can go here ---
 # Example: Use VS Code for editing

@@ -1,7 +1,6 @@
 #!/bin/bash
-{{/* Only run on Linux */}}
+{{- /* Install Linux packages - placed in .chezmoiscripts */ -}}
 {{- if ne .chezmoi.os "linux" -}}
-#!/bin/sh
 exit 0
 {{- end -}}
 
