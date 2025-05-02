@@ -2,18 +2,20 @@
 # Requires elevated privileges
 # This script installs packages on Windows systems using winget
 
+# Help documentation
+<#
+.SYNOPSIS
+Installs packages listed in winget-packages-windows.txt using winget.
+#>
+
 # Ensure we're running on Windows
 if (-not [Environment]::OSVersion.Platform.ToString().StartsWith("Win")) {
     Write-Error "This script is intended to run only on Windows systems."
     exit 0  # Exit gracefully on non-Windows
 }
 
-<#
-.SYNOPSIS
-Installs packages listed in winget-packages-windows.txt using winget.
-#>
-
-param()
+# No parameters needed for this script
+# param() can be problematic in some PowerShell environments when empty
 
 Write-Verbose "Running Windows package installation script..."
 

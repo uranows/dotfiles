@@ -2,12 +2,6 @@
 # This script configures Windows Terminal settings
 # It only runs on Windows systems
 
-# Ensure we're running on Windows
-if (-not [Environment]::OSVersion.Platform.ToString().StartsWith("Win")) {
-    Write-Error "This script is intended to run only on Windows systems."
-    exit 0  # Exit gracefully on non-Windows
-}
-
 # Help documentation
 <#
 .SYNOPSIS
@@ -15,7 +9,14 @@ Copies the Windows Terminal settings.json from the chezmoi source directory
 to the correct location under %LOCALAPPDATA%.
 #>
 
-param()
+# Ensure we're running on Windows
+if (-not [Environment]::OSVersion.Platform.ToString().StartsWith("Win")) {
+    Write-Error "This script is intended to run only on Windows systems."
+    exit 0  # Exit gracefully on non-Windows
+}
+
+# No parameters needed for this script
+# param() can be problematic in some PowerShell environments when empty
 
 Write-Verbose "Running Windows Terminal configuration script..."
 
