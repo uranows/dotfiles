@@ -1,0 +1,13 @@
+format = "$directory$git_branch $character"
+
+[directory]
+style = "yellow"
+read_only = " "
+
+[git_branch]
+format = " [$branch]($style)"
+style = "cyan"
+
+[character]
+success_symbol = "[>](green)"
+error_symbol = "[❯](red)"

@@ -1,0 +1,5 @@
+eza-community.eza
+Starship.Starship
+Microsoft.PowerShell
+Microsoft.WindowsTerminal
+Git.Git 

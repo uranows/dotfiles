@@ -1,0 +1,13 @@
+zsh
+starship
+git
+curl
+eza
+fzf
+bat
+ripgrep
+fd-find
+tldr
+build-essential
+cmake
+libssl-dev 

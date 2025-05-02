@@ -1,0 +1,28 @@
+# Source: home/dot_config/chezmoi/chezmoi.toml.tmpl
+# Target: ~/.config/chezmoi/chezmoi.toml
+
+# --- Windows Specific Mappings ---
+{{ if eq .chezmoi.os "windows" -}}
+
+# Map PowerShell Profile from apps/ directory
+# Target path is relative to the user's home directory
+["Documents/PowerShell/Microsoft.PowerShell_profile.ps1"]
+    source = "apps/powershell/Microsoft.PowerShell_profile.ps1"
+    type = "file" # Can be file or template
+
+# Map Windows Terminal Settings from apps/ directory
+# Target path uses templating to get the dynamic LOCALAPPDATA path
+# NOTE: Assumes the common package identifier '_8wekyb3d8bbwe'. This might need adjustment in rare cases.
+["{{ joinPath .chezmoi.env.LOCALAPPDATA \"Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json\" }}"]
+    source = "apps/windows_terminal/windows-terminal-settings.json"
+    type = "file" # Can be file or template
+
+{{ end -}}
+
+# --- General chezmoi settings can go here ---
+# Example: Use VS Code for editing
+# [edit]
+#   command = "code"
+#   args = ["--wait"]
+
+# Add other settings as needed (e.g., encryption, git config) 
