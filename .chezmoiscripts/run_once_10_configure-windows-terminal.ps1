@@ -1,14 +1,21 @@
+{{- /* Script to copy Windows Terminal settings - placed in .chezmoiscripts */ -}}
+{{- if ne .chezmoi.os "windows" -}}
+exit 0
+{{- end -}}
 #Requires -Version 5.1
 
 <#
 .SYNOPSIS
 Copies the Windows Terminal settings.json from the chezmoi source directory
 to the correct location under %LOCALAPPDATA%. Runs only once per machine.
+This script is placed in .chezmoiscripts/
 #>
 
 param()
 
-Write-Verbose "Running Windows Terminal configuration script (run_once)..."
+Write-Verbose "Running Windows Terminal configuration script from .chezmoiscripts (run_once)..."
+
+# --- Rest of the script content is the same as before ---
 
 $SourceRepoPath = "{{ .chezmoi.sourceDir }}"
 $SettingsSourceFile = Join-Path $SourceRepoPath "apps/windows_terminal/windows-terminal-settings.json"
