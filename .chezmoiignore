@@ -1,5 +1,6 @@
 # Standard ignored files/folders
 README.md
+scripts_legacy/
 
 # Ignore Linux-specific scripts on Windows
 {{ if eq .chezmoi.os "windows" }}
