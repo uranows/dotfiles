@@ -15,12 +15,17 @@
 {{ end -}}
 
 # --- Interpreters ---
-# Explicitly tell chezmoi how to run .ps1 files on Windows
+# Explicitly tell chezmoi how to run scripts on different platforms
 [interpreters]
-  # Match standard .ps1 files
+  # Match standard .ps1 files on Windows
   [interpreters.ps1]
     command = "powershell.exe"
     args = ["-NoProfile", "-NoLogo", "-ExecutionPolicy", "Bypass", "-File"]
+
+  # Run .sh scripts via WSL bash.exe on Windows (requires WSL)
+  [interpreters.sh]
+    command = "bash.exe"
+    args = ["-eu", "-o", "pipefail"]
 
 # --- Scripts ---
 # Note: We're now using the .chezmoiscripts directory approach
