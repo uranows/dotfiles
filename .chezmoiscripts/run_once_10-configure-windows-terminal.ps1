@@ -1,21 +1,28 @@
-{{- /* Script to copy Windows Terminal settings - placed in .chezmoiscripts */ -}}
-#Requires -Version 5.1
+# Requires PowerShell 5.1 or higher
+# This script configures Windows Terminal settings
+# It only runs on Windows systems
 
+# Ensure we're running on Windows
+if (-not [Environment]::OSVersion.Platform.ToString().StartsWith("Win")) {
+    Write-Error "This script is intended to run only on Windows systems."
+    exit 0  # Exit gracefully on non-Windows
+}
+
+# Help documentation
 <#
 .SYNOPSIS
 Copies the Windows Terminal settings.json from the chezmoi source directory
-to the correct location under %LOCALAPPDATA%. Runs only once per machine.
-This script is placed in .chezmoiscripts/
+to the correct location under %LOCALAPPDATA%.
 #>
 
 param()
 
-Write-Verbose "Running Windows Terminal configuration script (run_once)..."
+Write-Verbose "Running Windows Terminal configuration script..."
 
 $SourceRepoPath = "{{ .chezmoi.sourceDir }}"
 $SettingsSourceFile = Join-Path $SourceRepoPath "apps/windows_terminal/windows-terminal-settings.json"
 
-# Find the Windows Terminal package directory (handle potential variations)
+# Find the Windows Terminal package directory
 $PackagesDir = Join-Path $env:LOCALAPPDATA "Packages"
 $TerminalPackageDir = Get-ChildItem -Path $PackagesDir -Filter "Microsoft.WindowsTerminal_*" -Directory | Select-Object -First 1
 

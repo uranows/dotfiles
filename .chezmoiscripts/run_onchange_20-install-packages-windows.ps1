@@ -1,10 +1,16 @@
-#Requires -Version 5.1
-#Requires -RunAsAdministrator
+# Requires PowerShell 5.1 or higher
+# Requires elevated privileges
+# This script installs packages on Windows systems using winget
+
+# Ensure we're running on Windows
+if (-not [Environment]::OSVersion.Platform.ToString().StartsWith("Win")) {
+    Write-Error "This script is intended to run only on Windows systems."
+    exit 0  # Exit gracefully on non-Windows
+}
 
 <#
 .SYNOPSIS
 Installs packages listed in winget-packages-windows.txt using winget.
-This script is intended to be run by chezmoi.
 #>
 
 param()

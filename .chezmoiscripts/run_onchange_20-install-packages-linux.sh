@@ -1,4 +1,12 @@
 #!/bin/bash
+# This script installs packages on Linux systems
+# It uses the packages list from the packages directory
+
+# Ensure we're running on a Linux/Unix system
+if [[ "$(uname)" != "Linux" && "$(uname)" != "Darwin" ]]; then
+    echo "This script is intended to run only on Linux/Unix systems."
+    exit 0  # Exit gracefully on non-Linux
+fi
 
 set -e # Exit immediately if a command exits with a non-zero status.
 set -u # Treat unset variables as an error.
@@ -57,7 +65,6 @@ install_cargo_packages() {
         echo "Running: cargo install $pkg"
         cargo install $pkg || echo "Warning: Failed to install/update cargo package '$pkg'"
     done
-
 }
 
 # Function to fix bat -> batcat symlink
