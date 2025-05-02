@@ -1,2 +1,12 @@
+# Standard ignored files/folders
 README.md
-scripts_legacy/ 
+
+# Ignore Linux-specific scripts on Windows
+{{ if eq .chezmoi.os "windows" }}
+.chezmoiscripts/**/*.sh.tmpl
+{{ end }}
+
+# Ignore Windows-specific scripts on Linux/macOS
+{{ if ne .chezmoi.os "windows" }}
+.chezmoiscripts/**/*.ps1.tmpl
+{{ end }} 
