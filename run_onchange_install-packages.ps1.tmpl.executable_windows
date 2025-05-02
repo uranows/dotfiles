@@ -1,7 +1,3 @@
-{{- /* Install Windows packages - placed in .chezmoiscripts */ -}}
-{{- if ne .chezmoi.os "windows" -}}
-exit 0
-{{- end -}}
 #Requires -Version 5.1
 #Requires -RunAsAdministrator
 

@@ -1,8 +1,4 @@
 #!/bin/bash
-{{- /* Install Linux packages - placed in .chezmoiscripts */ -}}
-{{- if ne .chezmoi.os "linux" -}}
-exit 0
-{{- end -}}
 
 set -e # Exit immediately if a command exits with a non-zero status.
 set -u # Treat unset variables as an error.
