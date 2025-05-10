@@ -17,7 +17,7 @@ eval "$(starship init zsh)"
 
 # === zoxide with cd override and auto tree view ===
 eval "$(zoxide init --cmd cd zsh)"
-function chpwd() { eza --tree --level=2 --icons }
+# function chpwd() { eza --tree --level=2 --icons }
 
 # === Real-time Suggestions & Syntax Highlighting ===
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
