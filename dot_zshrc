@@ -1,6 +1,6 @@
 # === Zsh Setup ===
 autoload -Uz compinit; compinit
-setopt correct
+# setopt correct
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
@@ -60,9 +60,9 @@ alias gl="git log --oneline --graph --decorate"
 # Fix execution flags (for Windows-created files)
 alias fix_exec="find . -type f ! -perm -u=x -exec chmod -x {} +"
 
-alias bat="batcat"
-alias cat='batcat --style=plain'
-export FZF_DEFAULT_OPTS="--preview '[[ -f {} ]] && batcat --style=numbers --color=always {} | head -100'"
+# alias bat="batcat"
+# alias cat='batcat --style=plain'
+# export FZF_DEFAULT_OPTS="--preview '[[ -f {} ]] && batcat --style=numbers --color=always {} | head -100'"
 
 alias grep='rg'
 
