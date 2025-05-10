@@ -9,6 +9,7 @@ setopt append_history hist_ignore_dups share_history
 
 # === Paths ===
 export PATH="$HOME/.local/bin:$PATH"
+export PAGER=cat
 
 # === Prompt (Starship) ===
 eval "$(starship init zsh)"
