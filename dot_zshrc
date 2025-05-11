@@ -17,8 +17,7 @@ eval "$(starship init zsh)"
 # === fzf ===
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# === zoxide with cd override ===
-eval "$(zoxide init --cmd cd zsh)"
+
 
 # === Real-time Suggestions & Syntax Highlighting ===
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -60,6 +59,7 @@ alias gco="git checkout"
 alias gl="git log --oneline --graph --decorate"
 
 # Docker shortcuts
+alias dc='docker compose'
 alias dce='docker compose exec'
 alias dcu='docker compose up -d'
 alias dcd='docker compose down'
@@ -80,4 +80,6 @@ fixcursor() {
   find /mnt/c/Users/rcamara/.cursor/extensions/ms-vscode-remote.remote-wsl-* -name '*.sh' -exec chmod +x {} \; 2>/dev/null
 }
 
+# === zoxide with cd override ===
+eval "$(zoxide init --cmd cd zsh)"
 chpwd_functions=() # Limpa explicitamente os hooks de mudança de diretório
