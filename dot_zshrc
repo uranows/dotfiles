@@ -66,6 +66,7 @@ alias dcd='docker compose down'
 alias dcb='docker compose build'
 alias dcl='docker compose logs -f'
 alias dps='docker compose ps'
+export COMPOSE_BAKE=true
 
 # Fix execution flags (for Windows-created files)
 alias fix_exec="find . -type f ! -perm -u=x -exec chmod -x {} +"
