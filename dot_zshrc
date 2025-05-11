@@ -82,5 +82,6 @@ fixcursor() {
 }
 
 # === zoxide with cd override ===
-eval "$(zoxide init --cmd cd zsh)"
+export _ZO_DOCTOR=0  # Desativa mensagens de aviso do zoxide
 chpwd_functions=() # Limpa explicitamente os hooks de mudança de diretório
+eval "$(zoxide init --cmd cd zsh)"
