@@ -85,6 +85,3 @@ fixcursor() {
 export _ZO_DOCTOR=0  # Desativa mensagens de aviso do zoxide
 chpwd_functions=() # Limpa explicitamente os hooks de mudança de diretório
 eval "$(zoxide init --cmd cd zsh)"
-
-eval "$(ssh-agent -s)" > /dev/null
-ssh-add ~/.ssh/id_rsa_azure 2>/dev/null
