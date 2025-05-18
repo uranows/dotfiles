@@ -87,4 +87,4 @@ chpwd_functions=() # Limpa explicitamente os hooks de mudança de diretório
 eval "$(zoxide init --cmd cd zsh)"
 
 eval "$(ssh-agent -s)" > /dev/null
-ssh-add ~/.ssh/id_ed25519_azure 2>/dev/null
+ssh-add ~/.ssh/id_rsa_azure 2>/dev/null
