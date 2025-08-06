@@ -14,7 +14,8 @@ case $OS in
         ;;
     "generic")
         echo "Forcing generic Linux configuration..."
-        CHEZMOI_OS=linux chezmoi apply -v
+        # Force generic Linux by setting environment variable
+        CHEZMOI_OS=linux CHEZMOI_FORCE_GENERIC=1 chezmoi apply -v
         ;;
     "arch")
         echo "Forcing Arch Linux configuration..."

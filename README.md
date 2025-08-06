@@ -85,11 +85,32 @@ packages/
 
 ### Manual OS Override
 You can manually specify the OS for testing or debugging:
+
+#### Using the wrapper script (recommended):
+```bash
+./apply-dotfiles.sh windows    # Force Windows
+./apply-dotfiles.sh generic    # Force generic Linux (bypasses Arch detection)
+./apply-dotfiles.sh arch       # Force Arch Linux
+./apply-dotfiles.sh auto       # Auto-detect (default)
+```
+
+#### Using environment variables directly:
 ```bash
 # Force specific OS configuration
 CHEZMOI_OS=windows chezmoi apply -v
 CHEZMOI_OS=linux chezmoi apply -v
+
+# Force generic Linux (bypasses distribution detection)
+CHEZMOI_OS=linux CHEZMOI_FORCE_GENERIC=1 chezmoi apply -v
 ```
+
+### Testing Different Configurations
+If you're on Arch Linux but want to test the generic Linux configuration:
+```bash
+./apply-dotfiles.sh generic
+```
+
+This will force the use of the generic Linux script even on Arch systems.
 
 ## Repository Structure Overview
 
