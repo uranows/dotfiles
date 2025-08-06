@@ -28,30 +28,24 @@
 
 # Detect Linux distribution for package manager selection
 {{ $distro := "unknown" }}
-{{ if (stat "/etc/debian_version") }}
-    {{ $distro = "debian" }}
-{{ else if (stat "/etc/arch-release") }}
+{{ if (stat "/etc/arch-release") }}
     {{ $distro = "arch" }}
+{{ else if (stat "/etc/debian_version") }}
+    {{ $distro = "debian" }}
 {{ else if (stat "/etc/redhat-release") }}
     {{ $distro = "redhat" }}
 {{ end }}
 
-# Debian-based systems (Ubuntu, Debian, etc.)
-{{ if eq $distro "debian" -}}
-["scripts/install-packages.linux-debian.sh"]
-    source = "scripts/install-packages.linux-debian.sh"
-    type = "run_once"
-    condition = "linux && debian"
-
-{{ else if eq $distro "arch" -}}
-# Arch Linux systems
+# Arch Linux systems (specific package manager)
+{{ if eq $distro "arch" -}}
 ["scripts/install-packages.linux-arch.sh"]
     source = "scripts/install-packages.linux-arch.sh"
     type = "run_once"
     condition = "linux && arch"
 
 {{ else -}}
-# Generic Linux fallback
+# Debian-based systems and generic Linux fallback
+# This covers: Ubuntu, Debian, Mint, Pop!_OS, and other apt-based distros
 ["scripts/install-packages.linux-generic.sh"]
     source = "scripts/install-packages.linux-generic.sh"
     type = "run_once"

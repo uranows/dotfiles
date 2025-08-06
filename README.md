@@ -37,7 +37,7 @@ Personal environment configurations (Linux & Windows) managed by [chezmoi](https
     
     # Or manual OS specification
     ./apply-dotfiles.sh windows    # Windows
-    ./apply-dotfiles.sh debian     # Debian/Ubuntu
+    ./apply-dotfiles.sh generic    # Generic Linux (Debian/Ubuntu/etc)
     ./apply-dotfiles.sh arch       # Arch Linux
     ```
     *   Installs packages via appropriate package manager (`apt`, `pacman`, `winget`).
@@ -62,23 +62,26 @@ This repository supports multiple operating systems with automatic detection:
 
 ### Supported OS
 - **Windows**: PowerShell, Windows Terminal, winget packages
-- **Debian/Ubuntu**: apt packages, shell scripts
-- **Arch Linux**: pacman packages, shell scripts
-- **Generic Linux**: Fallback for other distributions
+- **Generic Linux**: Debian, Ubuntu, Mint, Pop!_OS, and other apt-based distributions (fallback)
+- **Arch Linux**: pacman packages, specific Arch optimizations
 
 ### File Structure
 ```
 scripts/
 ├── install-packages.windows.ps1      # Windows package installation
-├── install-packages.linux-debian.sh  # Debian/Ubuntu package installation
-├── install-packages.linux-arch.sh    # Arch Linux package installation
-└── install-packages.linux-generic.sh # Generic Linux fallback
+├── install-packages.linux-generic.sh # Generic Linux (Debian/Ubuntu/etc)
+└── install-packages.linux-arch.sh    # Arch Linux package installation
 
 packages/
 ├── winget-packages.windows.txt       # Windows package list
-├── apt-packages.linux-debian.txt     # Debian/Ubuntu package list
+├── apt-packages.linux-generic.txt    # Generic Linux package list
 └── pacman-packages.linux-arch.txt    # Arch Linux package list
 ```
+
+### OS Detection Logic
+1. **Windows**: Uses PowerShell and winget
+2. **Arch Linux**: Detects `/etc/arch-release` and uses pacman
+3. **Generic Linux**: Everything else uses apt-based package management (Debian, Ubuntu, Mint, etc.)
 
 ### Manual OS Override
 You can manually specify the OS for testing or debugging:

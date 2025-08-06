@@ -12,8 +12,8 @@ case $OS in
         echo "Forcing Windows configuration..."
         CHEZMOI_OS=windows chezmoi apply -v
         ;;
-    "debian")
-        echo "Forcing Debian Linux configuration..."
+    "generic")
+        echo "Forcing generic Linux configuration..."
         CHEZMOI_OS=linux chezmoi apply -v
         ;;
     "arch")
@@ -25,12 +25,12 @@ case $OS in
         chezmoi apply -v
         ;;
     *)
-        echo "Usage: $0 [windows|debian|arch|auto]"
+        echo "Usage: $0 [windows|generic|arch|auto]"
         echo ""
         echo "Examples:"
         echo "  $0 auto      # Auto-detect OS (default)"
         echo "  $0 windows   # Force Windows configuration"
-        echo "  $0 debian    # Force Debian Linux configuration"
+        echo "  $0 generic   # Force generic Linux configuration (Debian/Ubuntu/etc)"
         echo "  $0 arch      # Force Arch Linux configuration"
         exit 1
         ;;
