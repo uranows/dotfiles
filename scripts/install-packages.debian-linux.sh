@@ -1,18 +1,24 @@
 #!/usr/bin/env bash
-# This script installs packages on Linux systems
+# This script installs packages on Debian-based Linux systems (Ubuntu, Debian, etc.)
 # It uses the packages list from the packages directory
 # CHEZMOI_SOURCE_DIR is set by chezmoi
 
-# Only proceed on Linux or macOS
-if [[ "$(uname -s)" != "Linux" && "$(uname -s)" != "Darwin" ]]; then
-    echo "Skipping Linux package installation on non-Linux host"
+# Only proceed on Linux
+if [[ "$(uname -s)" != "Linux" ]]; then
+    echo "Skipping Debian package installation on non-Linux host"
+    exit 0
+fi
+
+# Check if this is a Debian-based system
+if ! command -v apt-get >/dev/null 2>&1; then
+    echo "This script is for Debian-based systems only (apt-get not found)"
     exit 0
 fi
 
 set -euo pipefail
 
 # Path to APT packages list
-packages_file="$CHEZMOI_SOURCE_DIR/packages/apt-packages-linux.txt"
+packages_file="$CHEZMOI_SOURCE_DIR/packages/apt-packages-debian-linux.txt"
 if [[ ! -f "$packages_file" ]]; then
     echo "APT package list not found: $packages_file"
     exit 1
@@ -44,4 +50,4 @@ if command -v batcat >/dev/null 2>&1 && ! command -v bat >/dev/null 2>&1; then
     ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"
 fi
 
-echo "Linux package installation complete." 
+echo "Debian-based Linux package installation complete." 
