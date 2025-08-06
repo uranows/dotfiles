@@ -32,10 +32,6 @@ Personal environment configurations (Linux & Windows) managed by [chezmoi](https
 
 2.  **First Apply:**
     ```bash
-    # Automatic OS detection (recommended)
-    ./apply-dotfiles.sh
-    
-    # Or directly with chezmoi
     chezmoi apply -v
     ```
     *   Installs packages via appropriate package manager (`apt`, `pacman`, `winget`).
@@ -44,11 +40,10 @@ Personal environment configurations (Linux & Windows) managed by [chezmoi](https
 3.  **Configure Mappings (Important!):**
     *   The first `apply` creates `~/.config/chezmoi/chezmoi.toml`.
     *   Edit this file (`chezmoi edit ~/.config/chezmoi/chezmoi.toml`) to ensure paths for `apps/` directory files (Windows Terminal, PowerShell profile) are correct, especially on Windows. The template includes examples.
-    *   Rerun `./apply-dotfiles.sh` if mappings were adjusted.
+    *   Rerun `chezmoi apply -v` if mappings were adjusted.
 
 ## Common Commands
 
-*   `./apply-dotfiles.sh`: Apply with automatic OS detection and helpful output.
 *   `chezmoi apply -v`: Apply changes from source to target.
 *   `chezmoi update -v`: Pull latest changes from Git remote and apply.
 *   `chezmoi edit <target_file>`: Edit a managed file (e.g., `chezmoi edit ~/.zshrc`).
@@ -98,6 +93,5 @@ CHEZMOI_OS=linux chezmoi apply -v
 *   **`apps/`**: Configs needing explicit path mapping in `chezmoi.toml` (e.g., Windows Terminal, PowerShell profile).
 *   **`packages/`**: OS-specific package lists for different package managers.
 *   **`scripts/`**: OS-specific installation scripts run by `apply`.
-*   **`apply-dotfiles.sh`**: Convenient wrapper script with OS detection info.
 *   **`.chezmoiignore`**: Files/patterns ignored by chezmoi.
 *   **`README.md`**: This file.
