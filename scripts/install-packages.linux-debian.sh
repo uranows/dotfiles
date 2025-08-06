@@ -18,7 +18,7 @@ fi
 set -euo pipefail
 
 # Path to APT packages list
-packages_file="$CHEZMOI_SOURCE_DIR/packages/apt-packages-debian-linux.txt"
+packages_file="$CHEZMOI_SOURCE_DIR/packages/apt-packages.linux-debian.txt"
 if [[ ! -f "$packages_file" ]]; then
     echo "APT package list not found: $packages_file"
     exit 1
