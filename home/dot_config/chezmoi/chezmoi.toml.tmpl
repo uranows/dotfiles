@@ -26,15 +26,6 @@
 
 {{ else if eq .chezmoi.os "linux" -}}
 
-# Check if generic mode is forced via environment variable
-{{ if (getenv "CHEZMOI_FORCE_GENERIC") -}}
-# Force generic Linux configuration
-["scripts/install-packages.linux-generic.sh"]
-    source = "scripts/install-packages.linux-generic.sh"
-    type = "run_once"
-    condition = "linux"
-
-{{ else -}}
 # Detect Linux distribution for package manager selection
 {{ $distro := "unknown" }}
 {{ if (stat "/etc/arch-release") }}
@@ -60,7 +51,6 @@
     type = "run_once"
     condition = "linux"
 
-{{ end -}}
 {{ end -}}
 {{ end -}}
 

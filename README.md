@@ -33,12 +33,10 @@ Personal environment configurations (Linux & Windows) managed by [chezmoi](https
 2.  **First Apply:**
     ```bash
     # Automatic OS detection (recommended)
-    ./apply-dotfiles.sh auto
+    ./apply-dotfiles.sh
     
-    # Or manual OS specification
-    ./apply-dotfiles.sh windows    # Windows
-    ./apply-dotfiles.sh generic    # Generic Linux (Debian/Ubuntu/etc)
-    ./apply-dotfiles.sh arch       # Arch Linux
+    # Or directly with chezmoi
+    chezmoi apply -v
     ```
     *   Installs packages via appropriate package manager (`apt`, `pacman`, `winget`).
     *   **Windows:** May require running from PowerShell **as Administrator**.
@@ -50,7 +48,7 @@ Personal environment configurations (Linux & Windows) managed by [chezmoi](https
 
 ## Common Commands
 
-*   `./apply-dotfiles.sh auto`: Apply with automatic OS detection.
+*   `./apply-dotfiles.sh`: Apply with automatic OS detection and helpful output.
 *   `chezmoi apply -v`: Apply changes from source to target.
 *   `chezmoi update -v`: Pull latest changes from Git remote and apply.
 *   `chezmoi edit <target_file>`: Edit a managed file (e.g., `chezmoi edit ~/.zshrc`).
@@ -79,38 +77,20 @@ packages/
 ```
 
 ### OS Detection Logic
+Chezmoi automatically detects your system and selects the appropriate configuration:
+
 1. **Windows**: Uses PowerShell and winget
 2. **Arch Linux**: Detects `/etc/arch-release` and uses pacman
 3. **Generic Linux**: Everything else uses apt-based package management (Debian, Ubuntu, Mint, etc.)
 
-### Manual OS Override
-You can manually specify the OS for testing or debugging:
+### Manual Override (Advanced)
+If you need to override the OS detection for testing or debugging:
 
-#### Using the wrapper script (recommended):
-```bash
-./apply-dotfiles.sh windows    # Force Windows
-./apply-dotfiles.sh generic    # Force generic Linux (bypasses Arch detection)
-./apply-dotfiles.sh arch       # Force Arch Linux
-./apply-dotfiles.sh auto       # Auto-detect (default)
-```
-
-#### Using environment variables directly:
 ```bash
 # Force specific OS configuration
 CHEZMOI_OS=windows chezmoi apply -v
 CHEZMOI_OS=linux chezmoi apply -v
-
-# Force generic Linux (bypasses distribution detection)
-CHEZMOI_OS=linux CHEZMOI_FORCE_GENERIC=1 chezmoi apply -v
 ```
-
-### Testing Different Configurations
-If you're on Arch Linux but want to test the generic Linux configuration:
-```bash
-./apply-dotfiles.sh generic
-```
-
-This will force the use of the generic Linux script even on Arch systems.
 
 ## Repository Structure Overview
 
@@ -118,6 +98,6 @@ This will force the use of the generic Linux script even on Arch systems.
 *   **`apps/`**: Configs needing explicit path mapping in `chezmoi.toml` (e.g., Windows Terminal, PowerShell profile).
 *   **`packages/`**: OS-specific package lists for different package managers.
 *   **`scripts/`**: OS-specific installation scripts run by `apply`.
-*   **`apply-dotfiles.sh`**: Convenient wrapper script for OS-specific application.
+*   **`apply-dotfiles.sh`**: Convenient wrapper script with OS detection info.
 *   **`.chezmoiignore`**: Files/patterns ignored by chezmoi.
 *   **`README.md`**: This file.
