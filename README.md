@@ -62,13 +62,15 @@ This repository supports multiple operating systems with automatic detection:
 ```
 scripts/
 ├── install-packages.windows.ps1      # Windows package installation
-├── install-packages.linux-generic.sh # Generic Linux (Debian/Ubuntu/etc)
-└── install-packages.linux-arch.sh    # Arch Linux package installation
+├── install-packages.linux-generic.sh  # Generic Linux (Debian/Ubuntu/etc)
+├── install-packages.linux-arch.sh    # Arch: pacman from pacman.txt (run_once)
+└── bootstrap-arch.sh                 # Arch: optional manual bootstrap (pacman + yay + AUR)
 
 packages/
 ├── winget-packages.windows.txt       # Windows package list
 ├── apt-packages.linux-generic.txt    # Generic Linux package list
-└── pacman-packages.linux-arch.txt    # Arch Linux package list
+├── pacman.txt                        # Arch: pacman packages (one per line)
+└── aur.txt                           # Arch: AUR-only packages (minimal)
 ```
 
 ### OS Detection Logic
@@ -86,6 +88,19 @@ If you need to override the OS detection for testing or debugging:
 CHEZMOI_OS=windows chezmoi apply -v
 CHEZMOI_OS=linux chezmoi apply -v
 ```
+
+### Arch Linux (Hyprland)
+
+1. **Install git and chezmoi:** `sudo pacman -S git chezmoi` (or `yay -S chezmoi-bin`).
+2. **Init and apply:** `chezmoi init https://github.com/uranows/dotfiles.git` then `chezmoi apply -v`.
+3. **Optional bootstrap (manual):** From the repo source dir, run `./scripts/bootstrap-arch.sh` to install packages from `packages/pacman.txt`, yay if missing, and `packages/aur.txt`. Not run automatically on apply.
+4. **Monitors:** In `~/.config/hypr/hyprland.conf`, see the commented monitor block. List names with `hyprctl monitors`, then add lines like `monitor=DP-1,1920x1080@60,0x0,1`.
+5. **Keyboard (per-device):** Default is US-INTL. For ABNT2 on laptop + US-INTL on external: run `hyprctl devices` to get device names, then in `~/.config/hypr/hyprland.conf` uncomment the `device { ... }` blocks and replace `<INTERNAL_KEYBOARD_NAME>` / `<EXTERNAL_KEYBOARD_NAME>`. Use `kb_layout = br`, `kb_variant = abnt2` for internal and `us`/`intl` for external.
+6. **Timezone (GMT-3 São Paulo, document only — run manually if needed):**
+   ```bash
+   sudo timedatectl set-timezone America/Sao_Paulo
+   sudo timedatectl set-ntp true
+   ```
 
 ## Repository Structure Overview
 

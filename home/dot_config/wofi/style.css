@@ -1,0 +1,20 @@
+window {
+    margin: 0;
+    background: #2e3440;
+    border: 1px solid #4c566a;
+}
+input {
+    padding: 8px;
+    border: none;
+    background: #3b4252;
+    color: #eceff4;
+}
+list {
+    padding: 4px;
+}
+element {
+    padding: 6px;
+}
+element selected {
+    background: #434c5e;
+}
