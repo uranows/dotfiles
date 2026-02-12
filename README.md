@@ -94,7 +94,7 @@ CHEZMOI_OS=linux chezmoi apply -v
 1. **Install git and chezmoi:** `sudo pacman -S git chezmoi` (or `yay -S chezmoi-bin`).
 2. **Init and apply:** `chezmoi init https://github.com/uranows/dotfiles.git` then `chezmoi apply -v`.
 3. **Optional bootstrap (manual):** From the repo source dir, run `./scripts/bootstrap-arch.sh` to install packages from `packages/pacman.txt`, yay if missing, and `packages/aur.txt`. Not run automatically on apply.
-4. **Monitors:** In `~/.config/hypr/hyprland.conf`, see the commented monitor block. List names with `hyprctl monitors`, then add lines like `monitor=DP-1,1920x1080@60,0x0,1`.
+4. **Monitors:** In `~/.config/hypr/hyprland.conf`, see the commented monitor block. List names with `hyprctl monitors`, then add lines like `monitor=DP-1,1920x1080@60,0x0,1`. If Hyprland reports errors (e.g. `gestures:workspace_swipe`, `suppressevent`, `nofocus`), your file may have extra content from another setup — run `chezmoi apply -v` and overwrite the file with the repo version, or remove those deprecated/invalid options manually.
 5. **Keyboard (per-device):** Default is US-INTL. For ABNT2 on laptop + US-INTL on external: run `hyprctl devices` to get device names, then in `~/.config/hypr/hyprland.conf` uncomment the `device { ... }` blocks and replace `<INTERNAL_KEYBOARD_NAME>` / `<EXTERNAL_KEYBOARD_NAME>`. Use `kb_layout = br`, `kb_variant = abnt2` for internal and `us`/`intl` for external.
 6. **Timezone (GMT-3 São Paulo, document only — run manually if needed):**
    ```bash
