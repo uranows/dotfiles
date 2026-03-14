@@ -1,0 +1,81 @@
+.shell powershell
+
+# ── Reload ───────────────────────────────────────────────────────
+win + shift + r         : komorebic reload-configuration
+win + alt + r           : taskkill /f /im whkd.exe; Start-Process whkd -WindowStyle hidden
+
+# ── Close / minimize ────────────────────────────────────────────
+win + q                 : komorebic close
+
+# ── Focus windows (WASD) ────────────────────────────────────────
+win + a                 : komorebic focus left
+win + s                 : komorebic focus down
+win + w                 : komorebic focus up
+win + d                 : komorebic focus right
+
+# ── Move windows (shift + WASD) ─────────────────────────────────
+win + shift + a         : komorebic move left
+win + shift + s         : komorebic move down
+win + shift + w         : komorebic move up
+win + shift + d         : komorebic move right
+win + shift + return    : komorebic promote
+
+# ── Resize windows (ctrl + WASD) ────────────────────────────────
+win + ctrl + a          : komorebic resize-axis horizontal decrease
+win + ctrl + d          : komorebic resize-axis horizontal increase
+win + ctrl + s          : komorebic resize-axis vertical decrease
+win + ctrl + w          : komorebic resize-axis vertical increase
+
+# ── Stack windows ───────────────────────────────────────────────
+win + left              : komorebic stack left
+win + down              : komorebic stack down
+win + up                : komorebic stack up
+win + right             : komorebic stack right
+win + oem_1             : komorebic unstack
+win + oem_4             : komorebic cycle-stack previous
+win + oem_6             : komorebic cycle-stack next
+
+# ── Window state ─────────────────────────────────────────────────
+win + t                 : komorebic toggle-float
+win + f                 : komorebic toggle-monocle
+win + shift + f         : komorebic toggle-maximize
+
+# ── Layouts ──────────────────────────────────────────────────────
+win + x                 : komorebic flip-layout horizontal
+win + y                 : komorebic flip-layout vertical
+win + shift + p         : komorebic toggle-pause
+win + shift + e         : komorebic retile
+
+# ── Monitor focus (ctrl + W/S/D) ────────────────────────────────
+# Top ultrawide = 0, Bottom ultrawide = 1, Laptop right = 2
+# Adjust indices after checking: komorebic state | jq '.monitors'
+win + alt + w           : komorebic focus-monitor up
+win + alt + s           : komorebic focus-monitor down
+win + alt + d           : komorebic focus-monitor right
+
+# ── Move window to monitor (ctrl + shift + W/S/D) ───────────────
+win + alt + shift + w   : komorebic move-to-monitor up
+win + alt + shift + s   : komorebic move-to-monitor down
+win + alt + shift + d   : komorebic move-to-monitor right
+
+# ── Workspaces (win + 1..9) ─────────────────────────────────────
+win + 1                 : komorebic focus-workspace 0
+win + 2                 : komorebic focus-workspace 1
+win + 3                 : komorebic focus-workspace 2
+win + 4                 : komorebic focus-workspace 3
+win + 5                 : komorebic focus-workspace 4
+win + 6                 : komorebic focus-workspace 5
+win + 7                 : komorebic focus-workspace 6
+win + 8                 : komorebic focus-workspace 7
+win + 9                 : komorebic focus-workspace 8
+
+# ── Move window to workspace (win + shift + 1..9) ───────────────
+win + shift + 1         : komorebic move-to-workspace 0
+win + shift + 2         : komorebic move-to-workspace 1
+win + shift + 3         : komorebic move-to-workspace 2
+win + shift + 4         : komorebic move-to-workspace 3
+win + shift + 5         : komorebic move-to-workspace 4
+win + shift + 6         : komorebic move-to-workspace 5
+win + shift + 7         : komorebic move-to-workspace 6
+win + shift + 8         : komorebic move-to-workspace 7
+win + shift + 9         : komorebic move-to-workspace 8

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://github.com/glzr-io/zebar/raw/v3.0.0/resources/zpack-schema.json",
+  "name": "right-bar",
+  "version": "1.0.0",
+  "description": "Vertical right-side bar with komorebi integration and systray",
+  "widgets": [
+    {
+      "name": "bar",
+      "htmlPath": "./index.html",
+      "zOrder": "top_most",
+      "shownInTaskbar": false,
+      "focused": false,
+      "resizable": false,
+      "transparent": true,
+      "presets": [
+        {
+          "name": "default",
+          "anchor": "top_right",
+          "offsetX": "0px",
+          "offsetY": "0px",
+          "width": "48px",
+          "height": "100%",
+          "monitorSelection": { "type": "all" },
+          "dockToEdge": {
+            "enabled": true,
+            "edge": "right",
+            "windowMargin": "0px"
+          }
+        }
+      ]
+    }
+  ]
+}

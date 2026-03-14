@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-type="module">
+    import React, { useState, useEffect } from 'https://esm.sh/react@18?dev';
+    import { createRoot } from 'https://esm.sh/react-dom@18/client?dev';
+    import * as zebar from 'https://esm.sh/zebar@3.0';
+
+    const providers = zebar.createProviderGroup({
+      komorebi: { type: 'komorebi' },
+      date: { type: 'date', formatting: 'HH:mm', refreshInterval: 30000 },
+      dateFull: { type: 'date', formatting: 'dd/MM', refreshInterval: 60000 },
+      cpu: { type: 'cpu', refreshInterval: 3000 },
+      memory: { type: 'memory', refreshInterval: 5000 },
+      battery: { type: 'battery', refreshInterval: 30000 },
+      network: { type: 'network', refreshInterval: 10000 },
+      systray: { type: 'systray' },
+    });
+
+    function statClass(value, warn = 70, err = 90) {
+      if (value >= err) return 'stat stat--err';
+      if (value >= warn) return 'stat stat--warn';
+      return 'stat';
+    }
+
+    function App() {
+      const [output, setOutput] = useState(providers.outputMap);
+      useEffect(() => {
+        providers.onOutput(() => setOutput({ ...providers.outputMap }));
+      }, []);
+
+      const km = output.komorebi;
+      const workspaces = km?.currentWorkspaces || [];
+      const focusedName = km?.focusedWorkspace?.name;
+
+      const cpuUsage = Math.round(output.cpu?.usage || 0);
+      const memUsage = Math.round(output.memory?.usage || 0);
+      const battPct = Math.round(output.battery?.chargePercent || 0);
+      const isCharging = output.battery?.isCharging;
+      const netType = output.network?.defaultGateway?.ssid ? 'wifi' : 'eth';
+
+      return (
+        <div className="bar">
+          {/* ── Top: Workspaces ── */}
+          <div className="bar__top">
+            {workspaces.map((ws, i) => {
+              const hasTiling = ws.tilingContainers?.length > 0;
+              const hasMonocle = ws.monocleContainer != null;
+              const hasMax = ws.maximizedWindow != null;
+              const populated = hasTiling || hasMonocle || hasMax;
+              const focused = ws.name === focusedName;
+              const cls = `workspace${focused ? ' focused' : ''}${populated && !focused ? ' populated' : ''}`;
+              return <button key={i} className={cls}>{ws.name}</button>;
+            })}
+          </div>
+
+          {/* ── Center: Stats ── */}
+          <div className="bar__center">
+            <div className={statClass(cpuUsage)}>
+              <span className="stat__value">{cpuUsage}%</span>
+              <span className="stat__label">cpu</span>
+            </div>
+            <div className={statClass(memUsage)}>
+              <span className="stat__value">{memUsage}%</span>
+              <span className="stat__label">mem</span>
+            </div>
+            {output.battery && (
+              <div className={statClass(100 - battPct)}>
+                <span className="stat__value">{isCharging ? '⚡' : ''}{battPct}%</span>
+                <span className="stat__label">bat</span>
+              </div>
+            )}
+            <div className="stat">
+              <span className="stat__value">{netType === 'wifi' ? '◠' : '⏚'}</span>
+              <span className="stat__label">{netType}</span>
+            </div>
+          </div>
+
+          {/* ── Bottom: Systray + Clock ── */}
+          <div className="bar__bottom">
+            {output.systray && (
+              <>
+                <div className="systray">
+                  {output.systray.icons.map(icon => (
+                    <img
+                      key={icon.id}
+                      className="systray-icon"
+                      src={icon.iconUrl}
+                      title={icon.tooltip}
+                      onClick={e => { e.preventDefault(); output.systray.onLeftClick(icon.id); }}
+                      onContextMenu={e => { e.preventDefault(); output.systray.onRightClick(icon.id); }}
+                    />
+                  ))}
+                </div>
+                <div className="divider" />
+              </>
+            )}
+            <div className="clock">
+              <span className="clock__time">{output.date?.formatted || '--:--'}</span>
+              <span className="clock__date">{output.dateFull?.formatted || '--/--'}</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
