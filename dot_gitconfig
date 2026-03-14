@@ -1,0 +1,7 @@
+[user]
+        name = Rodolfo Camara
+        email = rodolfo.camara@ituran.com.br
+[credential]
+        helper = cache
+[core]
+        editor = code --wait 
