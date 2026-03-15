@@ -37,7 +37,6 @@ body {
 }
 
 .bar__top,
-.bar__center,
 .bar__bottom {
   display: flex;
   flex-direction: column;
@@ -45,8 +44,70 @@ body {
   gap: var(--gap);
 }
 
-.bar__center { flex: 1; justify-content: center; }
-.bar__bottom { margin-top: auto; }
+.bar__bottom { margin-top: auto; gap: 10px; }
+
+/* ── Ring gauge widgets ──────────────────────────────────────── */
+.ring-widget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.ring-value {
+  font-size: 9px;
+  font-weight: 700;
+  fill: var(--fg);
+  font-family: 'Cascadia Code', 'Segoe UI', monospace;
+}
+
+.ring-sub {
+  font-size: 7px;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  text-align: center;
+  max-width: 42px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Network speed widget ─────────────────────────────────────── */
+.net-widget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 2px 0;
+}
+
+.net-row {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.net-arrow {
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.net-down { color: var(--accent); }
+.net-up { color: var(--fg-dim); }
+
+.net-value {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--fg);
+  font-family: 'Cascadia Code', monospace;
+}
+
+.net-label {
+  font-size: 7px;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+}
 
 /* ── Workspace buttons ────────────────────────────────────────── */
 .workspace {
@@ -69,25 +130,73 @@ body {
 .workspace.focused { background: var(--accent); color: var(--bg); font-weight: 700; }
 .workspace.populated { color: var(--fg); }
 
-/* ── Widget items ─────────────────────────────────────────────── */
-.widget-icon {
+/* ── Taskbar (running apps as icons) ─────────────────────────── */
+.taskbar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  max-height: 40vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.taskbar::-webkit-scrollbar { width: 0; }
+
+.taskbar__item {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius);
-  font-size: 14px;
-  color: var(--fg-dim);
+  cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.widget-icon:hover { background: var(--bg-hover); color: var(--fg); }
+.taskbar__item:hover { background: var(--bg-hover); }
 
-.widget-label {
-  font-size: 10px;
+.taskbar__icon {
+  font-size: 11px;
+  font-weight: 700;
   color: var(--fg-dim);
+  line-height: 1;
+}
+
+.taskbar__item:hover .taskbar__icon { color: var(--fg); }
+
+.taskbar__img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  opacity: 0.85;
+  transition: opacity 0.15s ease;
+}
+
+.taskbar__item:hover .taskbar__img { opacity: 1; }
+
+/* ── Info widget (audio) ──────────────────────────────────────── */
+.info-widget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 0;
+}
+
+.info-value {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.info-label {
+  font-size: 8px;
+  color: var(--fg-dim);
+  max-width: 46px;
   text-align: center;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
   line-height: 1.2;
 }
 
@@ -126,33 +235,7 @@ body {
 .clock__date {
   font-size: 9px;
   color: var(--fg-dim);
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  letter-spacing: 1px;
 }
-
-/* ── System stats ─────────────────────────────────────────────── */
-.stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-}
-
-.stat__value {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--fg);
-}
-
-.stat__label {
-  font-size: 8px;
-  color: var(--fg-dim);
-  text-transform: uppercase;
-}
-
-.stat--warn .stat__value { color: var(--accent-warn); }
-.stat--err .stat__value { color: var(--accent-err); }
 
 /* ── Divider ──────────────────────────────────────────────────── */
 .divider {

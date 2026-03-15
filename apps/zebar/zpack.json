@@ -1,17 +1,23 @@
 {
   "$schema": "https://github.com/glzr-io/zebar/raw/v3.0.0/resources/zpack-schema.json",
-  "name": "right-bar",
+  "name": "local.right-bar",
   "version": "1.0.0",
   "description": "Vertical right-side bar with komorebi integration and systray",
   "widgets": [
     {
       "name": "bar",
       "htmlPath": "./index.html",
+      "includeFiles": ["*.html", "*.css"],
       "zOrder": "top_most",
       "shownInTaskbar": false,
       "focused": false,
       "resizable": false,
       "transparent": true,
+      "privileges": {
+        "shellCommands": [
+          { "program": "powershell", "argsRegex": ".*" }
+        ]
+      },
       "presets": [
         {
           "name": "default",

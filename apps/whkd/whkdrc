@@ -13,12 +13,12 @@ win + s                 : komorebic focus down
 win + w                 : komorebic focus up
 win + d                 : komorebic focus right
 
-# ── Move windows (shift + WASD) ─────────────────────────────────
-win + shift + a         : komorebic move left
-win + shift + s         : komorebic move down
-win + shift + w         : komorebic move up
-win + shift + d         : komorebic move right
-win + shift + return    : komorebic promote
+# ── Move windows (alt + WASD) ────────────────────────────────────
+win + alt + a           : komorebic move left
+win + alt + s           : komorebic move down
+win + alt + w           : komorebic move up
+win + alt + d           : komorebic move right
+win + alt + return      : komorebic promote
 
 # ── Resize windows (ctrl + WASD) ────────────────────────────────
 win + ctrl + a          : komorebic resize-axis horizontal decrease
@@ -46,17 +46,17 @@ win + y                 : komorebic flip-layout vertical
 win + shift + p         : komorebic toggle-pause
 win + shift + e         : komorebic retile
 
-# ── Monitor focus (ctrl + W/S/D) ────────────────────────────────
+# ── Monitor focus (alt + ctrl + W/S/D) ──────────────────────────
 # Top ultrawide = 0, Bottom ultrawide = 1, Laptop right = 2
 # Adjust indices after checking: komorebic state | jq '.monitors'
-win + alt + w           : komorebic focus-monitor up
-win + alt + s           : komorebic focus-monitor down
-win + alt + d           : komorebic focus-monitor right
+win + alt + ctrl + w    : komorebic focus-monitor up
+win + alt + ctrl + s    : komorebic focus-monitor down
+win + alt + ctrl + d    : komorebic focus-monitor right
 
-# ── Move window to monitor (ctrl + shift + W/S/D) ───────────────
-win + alt + shift + w   : komorebic move-to-monitor up
-win + alt + shift + s   : komorebic move-to-monitor down
-win + alt + shift + d   : komorebic move-to-monitor right
+# ── Move window to monitor (alt + ctrl + shift + W/S/D) ─────────
+win + alt + ctrl + shift + w : komorebic move-to-monitor up
+win + alt + ctrl + shift + s : komorebic move-to-monitor down
+win + alt + ctrl + shift + d : komorebic move-to-monitor right
 
 # ── Workspaces (win + 1..9) ─────────────────────────────────────
 win + 1                 : komorebic focus-workspace 0
