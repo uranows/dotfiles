@@ -1,4 +1,6 @@
 /* ── Base ──────────────────────────────────────────────────────── */
+/* All sizes use vw so they scale proportionally across monitors.
+   Reference: 48px bar → 100vw. 1px ≈ 2.08vw */
 :root {
   --bg: #1c2023;
   --bg-hover: #2a2f33;
@@ -7,15 +9,15 @@
   --accent: #95c7ae;
   --accent-warn: #e6c547;
   --accent-err: #c7ae95;
-  --radius: 6px;
-  --gap: 6px;
+  --radius: 12.5vw;
+  --gap: 12.5vw;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   font-family: 'Segoe UI', 'Cascadia Code', sans-serif;
-  font-size: 11px;
+  font-size: 23vw;
   color: var(--fg);
   background: transparent;
   overflow: hidden;
@@ -29,7 +31,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  width: 48px;
+  width: 100vw;
   height: 100vh;
   padding: var(--gap) 0;
   background: var(--bg);
@@ -44,32 +46,57 @@ body {
   gap: var(--gap);
 }
 
-.bar__bottom { margin-top: auto; gap: 10px; }
-
-/* ── Ring gauge widgets ──────────────────────────────────────── */
-.ring-widget {
+.bar__center {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1px;
+  justify-content: center;
+  gap: var(--gap);
 }
 
-.ring-value {
-  font-size: 9px;
-  font-weight: 700;
-  fill: var(--fg);
-  font-family: 'Cascadia Code', 'Segoe UI', monospace;
+.bar__bottom { margin-top: auto; gap: 21vw; }
+
+/* ── Metrics block ────────────────────────────────────────────── */
+.metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 14vw;
+  width: 70vw;
 }
 
-.ring-sub {
-  font-size: 7px;
+.meter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3vw;
+}
+
+.meter__label {
+  font-size: 13vw;
+  font-weight: 600;
   color: var(--fg-dim);
   text-transform: uppercase;
-  text-align: center;
-  max-width: 42px;
+}
+
+.meter__value {
+  font-size: 21vw;
+  font-weight: 700;
+  color: var(--fg);
+  font-family: 'Cascadia Code', monospace;
+}
+
+.meter__track {
+  width: 100%;
+  height: 6vw;
+  background: var(--bg-hover);
+  border-radius: 3vw;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+}
+
+.meter__fill {
+  height: 100%;
+  border-radius: 3vw;
 }
 
 /* ── Network speed widget ─────────────────────────────────────── */
@@ -77,19 +104,17 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1px;
-  padding: 2px 0;
+  gap: 2vw;
 }
 
 .net-row {
   display: flex;
   align-items: center;
-  gap: 1px;
+  gap: 2vw;
 }
 
 .net-arrow {
-  font-size: 8px;
-  font-weight: 700;
+  font-size: 10vw;
   line-height: 1;
 }
 
@@ -97,16 +122,19 @@ body {
 .net-up { color: var(--fg-dim); }
 
 .net-value {
-  font-size: 9px;
+  font-size: 17vw;
   font-weight: 600;
   color: var(--fg);
   font-family: 'Cascadia Code', monospace;
+  min-width: 28vw;
+  text-align: right;
 }
 
-.net-label {
-  font-size: 7px;
+.net-unit {
+  font-size: 13vw;
   color: var(--fg-dim);
-  text-transform: uppercase;
+  font-weight: 500;
+  min-width: 15vw;
 }
 
 /* ── Workspace buttons ────────────────────────────────────────── */
@@ -114,13 +142,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 67vw;
+  height: 67vw;
   border: none;
   border-radius: var(--radius);
   background: transparent;
   color: var(--fg-dim);
-  font-size: 12px;
+  font-size: 25vw;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -135,7 +163,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 4vw;
   max-height: 40vh;
   overflow-y: auto;
   overflow-x: hidden;
@@ -147,17 +175,20 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 75vw;
+  height: 75vw;
   border-radius: var(--radius);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .taskbar__item:hover { background: var(--bg-hover); }
+.taskbar__item--focused { background: var(--bg-hover); border-left: 2px solid var(--accent); }
+.taskbar__item--focused .taskbar__img { opacity: 1; }
+.taskbar__item--focused .taskbar__icon { color: var(--fg); }
 
 .taskbar__icon {
-  font-size: 11px;
+  font-size: 23vw;
   font-weight: 700;
   color: var(--fg-dim);
   line-height: 1;
@@ -166,8 +197,8 @@ body {
 .taskbar__item:hover .taskbar__icon { color: var(--fg); }
 
 .taskbar__img {
-  width: 24px;
-  height: 24px;
+  width: 50vw;
+  height: 50vw;
   object-fit: contain;
   opacity: 0.85;
   transition: opacity 0.15s ease;
@@ -175,25 +206,25 @@ body {
 
 .taskbar__item:hover .taskbar__img { opacity: 1; }
 
-/* ── Info widget (audio) ──────────────────────────────────────── */
+/* ── Info widget (audio, headset) ─────────────────────────────── */
 .info-widget {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 4px 0;
+  gap: 4vw;
+  padding: 8vw 0;
 }
 
 .info-value {
-  font-size: 11px;
+  font-size: 23vw;
   font-weight: 600;
   color: var(--fg);
 }
 
 .info-label {
-  font-size: 8px;
+  font-size: 17vw;
   color: var(--fg-dim);
-  max-width: 46px;
+  max-width: 96vw;
   text-align: center;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -202,15 +233,16 @@ body {
 
 /* ── Systray ──────────────────────────────────────────────────── */
 .systray {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6vw;
+  justify-items: center;
+  padding: 0 4vw;
 }
 
 .systray-icon {
-  width: 18px;
-  height: 18px;
+  width: 30vw;
+  height: 30vw;
   cursor: pointer;
   opacity: 0.7;
   transition: opacity 0.15s ease;
@@ -223,24 +255,24 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 4vw;
 }
 
 .clock__time {
-  font-size: 13px;
+  font-size: 27vw;
   font-weight: 600;
   color: var(--fg);
 }
 
 .clock__date {
-  font-size: 9px;
+  font-size: 19vw;
   color: var(--fg-dim);
 }
 
 /* ── Divider ──────────────────────────────────────────────────── */
 .divider {
-  width: 24px;
+  width: 50vw;
   height: 1px;
   background: var(--bg-hover);
-  margin: 2px 0;
+  margin: 4vw 0;
 }

@@ -35,10 +35,14 @@ win + f                 : komorebic toggle-monocle
 win + shift + f         : komorebic toggle-maximize
 
 # ── Toggle shortcuts ─────────────────────────────────────────────
-win + i                 : komorebic toggle-shortcuts
+win + shift + i         : komorebic toggle-shortcuts
+
+# ── App launcher ─────────────────────────────────────────────────
+win + x                 : wt
+win + c                 : start msedge
 
 # ── Layouts ──────────────────────────────────────────────────────
-win + x                 : komorebic flip-layout horizontal
+win + shift + x         : komorebic flip-layout horizontal
 win + y                 : komorebic flip-layout vertical
 win + shift + p         : komorebic toggle-pause
 

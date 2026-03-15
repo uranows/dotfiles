@@ -20,18 +20,34 @@
       },
       "presets": [
         {
-          "name": "default",
+          "name": "bottom-ultrawide",
+          "anchor": "top_right",
+          "offsetX": "0px",
+          "offsetY": "0px",
+          "width": "64px",
+          "height": "100%",
+          "monitorSelection": { "type": "index", "match": 0 },
+          "dockToEdge": { "enabled": true, "edge": "right", "windowMargin": "0px" }
+        },
+        {
+          "name": "top-ultrawide",
           "anchor": "top_right",
           "offsetX": "0px",
           "offsetY": "0px",
           "width": "48px",
           "height": "100%",
-          "monitorSelection": { "type": "all" },
-          "dockToEdge": {
-            "enabled": true,
-            "edge": "right",
-            "windowMargin": "0px"
-          }
+          "monitorSelection": { "type": "index", "match": 1 },
+          "dockToEdge": { "enabled": true, "edge": "right", "windowMargin": "0px" }
+        },
+        {
+          "name": "laptop",
+          "anchor": "top_right",
+          "offsetX": "0px",
+          "offsetY": "0px",
+          "width": "40px",
+          "height": "100%",
+          "monitorSelection": { "type": "index", "match": 2 },
+          "dockToEdge": { "enabled": true, "edge": "right", "windowMargin": "0px" }
         }
       ]
     }

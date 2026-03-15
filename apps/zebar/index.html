@@ -23,55 +23,41 @@
       systray: { type: 'systray' },
     });
 
-    // ── Icon cache: exe name → base64 data URL ────────────────────
-    const iconCache = {};       // { 'msedge.exe': 'data:image/png;base64,...' }
-    const iconPending = {};     // { 'msedge.exe': true } — extraction in progress
-    const FALLBACK_LABELS = {
-      'msedge': 'Ed', 'chrome': 'Cr', 'firefox': 'Fx', 'brave': 'Br',
-      'windowsterminal': '>_', 'wt': '>_', 'wezterm-gui': '>_', 'alacritty': '>_',
-      'code': 'VS', 'cursor': 'Cu', 'devenv': 'VS', 'rider': 'Ri', 'idea64': 'IJ',
-      'explorer': 'Ex', 'spotify': 'Sp', 'discord': 'Dc', 'slack': 'Sl',
-      'teams': 'Tm', 'telegram': 'Tg', 'whatsapp': 'Wa',
-      'notepad': 'Np', 'notepad++': 'N+',
-      'winword': 'Wo', 'excel': 'Xl', 'powerpnt': 'Pp', 'outlook': 'Ol', 'onenote': 'On',
-      'mstsc': 'Rd', 'obs64': 'OB', 'vlc': 'VL', 'figma': 'Fi',
-    };
+    // ── Icon cache: hwnd → base64 data URL ─────────────────────────
+    const iconCache = {};
+    const iconPending = {};
 
-    function getFallbackLabel(exe) {
-      if (!exe) return '?';
-      const key = exe.split(/[/\\]/).pop().replace('.exe', '').toLowerCase();
-      return FALLBACK_LABELS[key] || key.slice(0, 2).toUpperCase();
-    }
-
-    function extractIcon(exe, onDone) {
-      if (!exe || iconCache[exe] || iconPending[exe]) return;
-      iconPending[exe] = true;
-      const cmd = `[void][System.Reflection.Assembly]::LoadWithPartialName('System.Drawing');` +
-        `$p=(Get-Command '${exe}' -EA SilentlyContinue|Select -First 1 -Exp Source);` +
-        `if(!$p){$p=(Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\${exe}' -EA SilentlyContinue).'(default)'}` +
-        `if(!$p){$p=(where.exe '${exe}' 2>$null|Select -First 1)}` +
-        `if(!$p){$p=@(` +
-          `'C:\\Program Files','C:\\Program Files (x86)',` +
-          `$env:LOCALAPPDATA+'\\Programs'` +
-        `)|%{Get-ChildItem $_ -Filter '${exe}' -Recurse -Depth 4 -EA SilentlyContinue}|Select -First 1 -Exp FullName}` +
-        `if($p -and (Test-Path $p)){$i=[System.Drawing.Icon]::ExtractAssociatedIcon($p);` +
-        `$b=$i.ToBitmap();$m=New-Object IO.MemoryStream;` +
-        `$b.Save($m,[System.Drawing.Imaging.ImageFormat]::Png);` +
-        `[Convert]::ToBase64String($m.ToArray())}`;
+    function extractIconByHwnd(hwnd, onDone) {
+      if (!hwnd || iconCache[hwnd] || iconCache[hwnd] === null || iconPending[hwnd]) return;
+      iconPending[hwnd] = true;
+      const cmd = `Add-Type @'
+using System;using System.Runtime.InteropServices;using System.Drawing;using System.IO;
+public class WI{
+  [DllImport("user32.dll")]static extern IntPtr SendMessage(IntPtr h,uint m,IntPtr w,IntPtr l);
+  [DllImport("user32.dll")]static extern IntPtr GetClassLongPtr(IntPtr h,int i);
+  public static string Get(IntPtr h){
+    IntPtr i=SendMessage(h,0x7F,(IntPtr)1,IntPtr.Zero);
+    if(i==IntPtr.Zero)i=SendMessage(h,0x7F,(IntPtr)2,IntPtr.Zero);
+    if(i==IntPtr.Zero)i=GetClassLongPtr(h,-14);
+    if(i==IntPtr.Zero)i=GetClassLongPtr(h,-34);
+    if(i==IntPtr.Zero)return"";
+    var b=Icon.FromHandle(i).ToBitmap();var m=new MemoryStream();
+    b.Save(m,System.Drawing.Imaging.ImageFormat.Png);
+    return Convert.ToBase64String(m.ToArray());
+  }
+}
+'@ -ReferencedAssemblies System.Drawing
+[WI]::Get([IntPtr]${hwnd})`;
       zebar.shellExec('powershell', ['-NoProfile', '-Command', cmd])
-        .then(result => {
-          const b64 = (result?.stdout || '').trim();
-          if (b64 && b64.length > 20) {
-            iconCache[exe] = `data:image/png;base64,${b64}`;
-          } else {
-            iconCache[exe] = null; // mark as failed
-          }
-          delete iconPending[exe];
+        .then(r => {
+          const b64 = (r?.stdout || '').trim();
+          iconCache[hwnd] = (b64 && b64.length > 20) ? `data:image/png;base64,${b64}` : null;
+          delete iconPending[hwnd];
           onDone();
         })
         .catch(() => {
-          iconCache[exe] = null;
-          delete iconPending[exe];
+          iconCache[hwnd] = null;
+          delete iconPending[hwnd];
         });
     }
 
@@ -127,34 +113,32 @@
     }
 
     function formatGB(bytes) {
-      return (bytes / 1073741824).toFixed(1);
+      return Math.round(bytes / 1073741824);
     }
 
     function formatSpeed(traffic) {
-      if (!traffic) return { down: '0', up: '0' };
+      if (!traffic) return { down: '0', up: '0', downUnit: '', upUnit: '' };
       const down = traffic.received?.siValue ?? 0;
       const up = traffic.transmitted?.siValue ?? 0;
-      const fmt = (v) => v >= 1000 ? (v / 1000).toFixed(1) + 'G' : v.toFixed(0) + 'M';
-      return { down: fmt(down), up: fmt(up) };
+      const fmt = (v) => {
+        if (v >= 1000) return { val: (v / 1000).toFixed(1), unit: 'G' };
+        if (v >= 1) return { val: Math.round(v), unit: 'M' };
+        return { val: Math.round(v * 1000), unit: 'K' };
+      };
+      const d = fmt(down), u = fmt(up);
+      return { down: d.val, downUnit: d.unit, up: u.val, upUnit: u.unit };
     }
 
-    // ── Ring gauge component ────────────────────────────────────────
-    const R = 16, STROKE = 3, CIRC = 2 * Math.PI * R;
-
-    function Ring({ pct, color, label, sub }) {
-      const offset = CIRC - (Math.min(pct, 100) / 100) * CIRC;
-      const warnColor = pct >= 90 ? 'var(--accent-err)' : pct >= 70 ? 'var(--accent-warn)' : color;
+    // ── Meter bar component ──────────────────────────────────────────
+    function Meter({ pct, label, value }) {
+      const color = pct >= 90 ? 'var(--accent-err)' : pct >= 70 ? 'var(--accent-warn)' : 'var(--accent)';
       return (
-        <div className="ring-widget">
-          <svg width="38" height="38" viewBox="0 0 38 38">
-            <circle cx="19" cy="19" r={R} fill="none" stroke="var(--bg-hover)" strokeWidth={STROKE} />
-            <circle cx="19" cy="19" r={R} fill="none" stroke={warnColor} strokeWidth={STROKE}
-              strokeDasharray={CIRC} strokeDashoffset={offset}
-              strokeLinecap="round" transform="rotate(-90 19 19)"
-              style={{ transition: 'stroke-dashoffset 0.5s ease, stroke 0.3s ease' }} />
-            <text x="19" y="21" textAnchor="middle" className="ring-value">{label}</text>
-          </svg>
-          <span className="ring-sub">{sub}</span>
+        <div className="meter">
+          <span className="meter__label">{label}</span>
+          <span className="meter__value">{value}</span>
+          <div className="meter__track">
+            <div className="meter__fill" style={{ width: `${Math.min(pct, 100)}%`, background: color, transition: 'width 0.5s ease, background 0.3s ease' }} />
+          </div>
         </div>
       );
     }
@@ -169,18 +153,19 @@
 
       const km = output.komorebi;
       const workspaces = (km?.currentWorkspaces || []).slice(0, 2);
-      const focusedName = km?.focusedWorkspace?.name;
+      const focusedName = km?.displayedWorkspace?.name;
       const primary = isPrimaryMonitor(km);
       const windows = getWindowsForMonitor(km);
+      const focusedHwnd = km?.focusedWorkspace?.tilingContainers?.[km?.focusedWorkspace?.focusedContainerIndex]?.windows?.[0]?.hwnd
+        || km?.focusedWorkspace?.containers?.[km?.focusedWorkspace?.focusedContainerIndex]?.windows?.[0]?.hwnd
+        || km?.focusedWorkspace?.maximizedWindow?.hwnd;
 
       // Poll BT battery on primary monitor
       if (primary) pollBtBattery(rerender);
 
-      // Trigger icon extraction for any new exe
+      // Trigger icon extraction for any new window
       windows.forEach(w => {
-        if (w.exe && !iconCache[w.exe] && iconCache[w.exe] !== null) {
-          extractIcon(w.exe, rerender);
-        }
+        if (w.hwnd) extractIconByHwnd(w.hwnd, rerender);
       });
 
       const cpuUsage = Math.round(output.cpu?.usage || 0);
@@ -197,29 +182,8 @@
 
       return (
         <div className="bar">
-          {/* ── Top: Meters (primary only) + Workspaces + Taskbar ── */}
+          {/* ── Top: Workspaces + Meters (primary) ── */}
           <div className="bar__top">
-            {primary && (
-              <>
-                <Ring pct={cpuUsage} color="var(--accent)" label={cpuUsage} sub="cpu" />
-                <Ring pct={memPct} color="var(--accent)" label={memUsed} sub={memTotal + 'G'} />
-
-                <div className="net-widget">
-                  <div className="net-row">
-                    <span className="net-arrow net-down">v</span>
-                    <span className="net-value">{speed.down}</span>
-                  </div>
-                  <div className="net-row">
-                    <span className="net-arrow net-up">^</span>
-                    <span className="net-value">{speed.up}</span>
-                  </div>
-                  <span className="net-label">mb/s</span>
-                </div>
-
-                <div className="divider" />
-              </>
-            )}
-
             {/* ── Workspaces ── */}
             {workspaces.map((ws, i) => {
               const hasTiling = ws.tilingContainers?.length > 0;
@@ -231,23 +195,47 @@
               return <button key={i} className={cls}>{ws.name}</button>;
             })}
 
-            <div className="divider" />
+            {primary && (
+              <>
+                <div className="metrics">
+                  <Meter pct={cpuUsage} label="CPU" value={cpuUsage + '%'} />
+                  <Meter pct={memPct} label="MEM" value={memUsed + '/' + memTotal + 'G'} />
+                  <div className="net-widget">
+                    <span className="meter__label">NET</span>
+                    <div className="net-row">
+                      <span className="net-arrow net-down">{'\u25BC'}</span>
+                      <span className="net-value">{speed.down}</span>
+                      <span className="net-unit">{speed.downUnit}</span>
+                    </div>
+                    <div className="net-row">
+                      <span className="net-arrow net-up">{'\u25B2'}</span>
+                      <span className="net-value">{speed.up}</span>
+                      <span className="net-unit">{speed.upUnit}</span>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
 
-            {/* ── Taskbar ── */}
+            <div className="divider" />
+          </div>
+
+          {/* ── Center: Taskbar ── */}
+          <div className="bar__center">
             <div className="taskbar">
               {windows.map((w, i) => {
-                const cachedIcon = iconCache[w.exe];
+                const icon = iconCache[w.hwnd];
                 return (
                   <div
                     key={w.hwnd || i}
-                    className="taskbar__item"
+                    className={`taskbar__item${w.hwnd === focusedHwnd ? ' taskbar__item--focused' : ''}`}
                     title={w.title}
                     onClick={() => focusWindow(w.hwnd)}
                   >
-                    {cachedIcon ? (
-                      <img className="taskbar__img" src={cachedIcon} alt="" />
+                    {icon ? (
+                      <img className="taskbar__img" src={icon} alt="" />
                     ) : (
-                      <span className="taskbar__icon">{getFallbackLabel(w.exe)}</span>
+                      <span className="taskbar__icon">{(w.exe || '?').replace('.exe','').slice(0,2).toUpperCase()}</span>
                     )}
                   </div>
                 );
@@ -257,6 +245,7 @@
 
           {/* ── Bottom: Systray + Audio + Battery + Clock ── */}
           <div className="bar__bottom">
+            <div className="divider" />
             {primary && output.systray && (
               <>
                 <div className="systray">
@@ -288,7 +277,11 @@
               <>
                 <div className="info-widget" title={playback.name}>
                   <span className="info-value">{isMuted ? 'M' : volume + '%'}</span>
-                  <span className="info-label">{playback.name || ''}</span>
+                  <span className="info-label">{(() => {
+                    const n = playback.name || '';
+                    const m = n.match(/\(([^)]+)\)/);
+                    return m ? m[1] : n;
+                  })()}</span>
                 </div>
                 <div className="divider" />
               </>
