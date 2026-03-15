@@ -3,6 +3,7 @@
   "app_specific_configuration_path": "$Env:USERPROFILE/applications.json",
   "window_hiding_behaviour": "Cloak",
   "cross_monitor_move_behaviour": "Insert",
+  "mouse_follows_focus": false,
   "default_workspace_padding": 20,
   "default_container_padding": 20,
   "border": true,
@@ -17,23 +18,20 @@
   "monitors": [
     {
       "workspaces": [
-        { "name": "I",   "layout": "BSP" },
-        { "name": "II",  "layout": "VerticalStack" },
-        { "name": "III", "layout": "BSP" }
+        { "name": "I",   "layout": "VerticalStack" },
+        { "name": "II",  "layout": "BSP" }
+      ]
+    },
+    {
+      "workspaces": [
+        { "name": "I",   "layout": "UltrawideVerticalStack" },
+        { "name": "II",  "layout": "BSP" }
       ]
     },
     {
       "workspaces": [
         { "name": "I",   "layout": "BSP" },
-        { "name": "II",  "layout": "VerticalStack" },
-        { "name": "III", "layout": "BSP" }
-      ]
-    },
-    {
-      "workspaces": [
-        { "name": "I",   "layout": "BSP" },
-        { "name": "II",  "layout": "VerticalStack" },
-        { "name": "III", "layout": "BSP" }
+        { "name": "II",  "layout": "UltrawideVerticalStack" }
       ]
     }
   ]

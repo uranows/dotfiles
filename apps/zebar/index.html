@@ -8,7 +8,7 @@
 <body>
   <div id="root"></div>
   <script type="text/babel" data-type="module">
-    import React, { useState, useEffect, useRef } from 'https://esm.sh/react@18?dev';
+    import React, { useState, useEffect } from 'https://esm.sh/react@18?dev';
     import { createRoot } from 'https://esm.sh/react-dom@18/client?dev';
     import * as zebar from 'https://esm.sh/zebar@3.0';
 
@@ -48,7 +48,13 @@
       iconPending[exe] = true;
       const cmd = `[void][System.Reflection.Assembly]::LoadWithPartialName('System.Drawing');` +
         `$p=(Get-Command '${exe}' -EA SilentlyContinue|Select -First 1 -Exp Source);` +
-        `if($p){$i=[System.Drawing.Icon]::ExtractAssociatedIcon($p);` +
+        `if(!$p){$p=(Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\${exe}' -EA SilentlyContinue).'(default)'}` +
+        `if(!$p){$p=(where.exe '${exe}' 2>$null|Select -First 1)}` +
+        `if(!$p){$p=@(` +
+          `'C:\\Program Files','C:\\Program Files (x86)',` +
+          `$env:LOCALAPPDATA+'\\Programs'` +
+        `)|%{Get-ChildItem $_ -Filter '${exe}' -Recurse -Depth 4 -EA SilentlyContinue}|Select -First 1 -Exp FullName}` +
+        `if($p -and (Test-Path $p)){$i=[System.Drawing.Icon]::ExtractAssociatedIcon($p);` +
         `$b=$i.ToBitmap();$m=New-Object IO.MemoryStream;` +
         `$b.Save($m,[System.Drawing.Imaging.ImageFormat]::Png);` +
         `[Convert]::ToBase64String($m.ToArray())}`;
@@ -101,6 +107,25 @@
       return wins;
     }
 
+    // ── Bluetooth headset battery polling ──────────────────────────
+    let btBattery = null;
+    let btLastPoll = 0;
+    const BT_POLL_MS = 60000;
+
+    function pollBtBattery(onDone) {
+      const now = Date.now();
+      if (now - btLastPoll < BT_POLL_MS) return;
+      btLastPoll = now;
+      const cmd = "Get-PnpDevice -FriendlyName '*soundcore*' | ForEach-Object { ($_ | Get-PnpDeviceProperty -KeyName '{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2' -EA SilentlyContinue | Where-Object Type -ne Empty).Data } | Where-Object { $_ } | Select -First 1";
+      zebar.shellExec('powershell', ['-NoProfile', '-Command', cmd])
+        .then(r => {
+          const val = parseInt((r?.stdout || '').trim(), 10);
+          btBattery = isNaN(val) ? null : val;
+          onDone();
+        })
+        .catch(() => { btBattery = null; });
+    }
+
     function formatGB(bytes) {
       return (bytes / 1073741824).toFixed(1);
     }
@@ -143,10 +168,13 @@
       }, []);
 
       const km = output.komorebi;
-      const workspaces = (km?.currentWorkspaces || []).slice(0, 3);
+      const workspaces = (km?.currentWorkspaces || []).slice(0, 2);
       const focusedName = km?.focusedWorkspace?.name;
       const primary = isPrimaryMonitor(km);
       const windows = getWindowsForMonitor(km);
+
+      // Poll BT battery on primary monitor
+      if (primary) pollBtBattery(rerender);
 
       // Trigger icon extraction for any new exe
       windows.forEach(w => {
@@ -245,6 +273,14 @@
                 </div>
                 <div className="divider" />
               </>
+            )}
+
+            {/* ── BT headset battery (primary only) ── */}
+            {primary && btBattery !== null && (
+              <div className="info-widget">
+                <span className="info-value">{btBattery}%</span>
+                <span className="info-label">headset</span>
+              </div>
             )}
 
             {/* ── Audio (primary only) ── */}

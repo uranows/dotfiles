@@ -4,78 +4,73 @@
 win + shift + r         : komorebic reload-configuration
 win + alt + r           : taskkill /f /im whkd.exe; Start-Process whkd -WindowStyle hidden
 
-# ── Close / minimize ────────────────────────────────────────────
+# ── Close ────────────────────────────────────────────────────────
 win + q                 : komorebic close
 
-# ── Focus windows (WASD) ────────────────────────────────────────
-win + a                 : komorebic focus left
-win + s                 : komorebic focus down
-win + w                 : komorebic focus up
-win + d                 : komorebic focus right
+# ── Focus windows (arrows) ──────────────────────────────────────
+win + left              : komorebic focus left
+win + down              : komorebic focus down
+win + up                : komorebic focus up
+win + right             : komorebic focus right
 
-# ── Move windows (alt + WASD) ────────────────────────────────────
-win + alt + a           : komorebic move left
-win + alt + s           : komorebic move down
-win + alt + w           : komorebic move up
-win + alt + d           : komorebic move right
-win + alt + return      : komorebic promote
+# ── Move windows (shift + arrows) ───────────────────────────────
+win + shift + left      : komorebic move left
+win + shift + down      : komorebic move down
+win + shift + up        : komorebic move up
+win + shift + right     : komorebic move right
 
-# ── Resize windows (ctrl + WASD) ────────────────────────────────
-win + ctrl + a          : komorebic resize-axis horizontal decrease
-win + ctrl + d          : komorebic resize-axis horizontal increase
-win + ctrl + s          : komorebic resize-axis vertical decrease
-win + ctrl + w          : komorebic resize-axis vertical increase
+# ── Resize windows (alt + arrows) ───────────────────────────────
+win + alt + left        : komorebic resize-axis horizontal decrease
+win + alt + right       : komorebic resize-axis horizontal increase
+win + alt + down        : komorebic resize-axis vertical decrease
+win + alt + up          : komorebic resize-axis vertical increase
 
-# ── Stack windows ───────────────────────────────────────────────
-win + left              : komorebic stack left
-win + down              : komorebic stack down
-win + up                : komorebic stack up
-win + right             : komorebic stack right
-win + oem_1             : komorebic unstack
-win + oem_4             : komorebic cycle-stack previous
-win + oem_6             : komorebic cycle-stack next
+# ── Promote / retile ────────────────────────────────────────────
+win + return            : komorebic promote
+win + shift + e         : komorebic retile
 
 # ── Window state ─────────────────────────────────────────────────
 win + t                 : komorebic toggle-float
 win + f                 : komorebic toggle-monocle
 win + shift + f         : komorebic toggle-maximize
 
+# ── Toggle shortcuts ─────────────────────────────────────────────
+win + i                 : komorebic toggle-shortcuts
+
 # ── Layouts ──────────────────────────────────────────────────────
 win + x                 : komorebic flip-layout horizontal
 win + y                 : komorebic flip-layout vertical
 win + shift + p         : komorebic toggle-pause
-win + shift + e         : komorebic retile
 
-# ── Monitor focus (alt + ctrl + W/S/D) ──────────────────────────
+# ── Stack windows ───────────────────────────────────────────────
+win + alt + shift + left  : komorebic stack left
+win + alt + shift + down  : komorebic stack down
+win + alt + shift + up    : komorebic stack up
+win + alt + shift + right : komorebic stack right
+win + alt + oem_1         : komorebic unstack
+win + oem_4             : komorebic cycle-stack previous
+win + oem_6             : komorebic cycle-stack next
+
+# ── Monitor focus (ctrl + shift + arrows) ────────────────────────
 # Top ultrawide = 0, Bottom ultrawide = 1, Laptop right = 2
 # Adjust indices after checking: komorebic state | jq '.monitors'
-win + alt + ctrl + w    : komorebic focus-monitor up
-win + alt + ctrl + s    : komorebic focus-monitor down
-win + alt + ctrl + d    : komorebic focus-monitor right
+win + ctrl + shift + up    : komorebic focus-monitor up
+win + ctrl + shift + down  : komorebic focus-monitor down
+win + ctrl + shift + right : komorebic focus-monitor right
 
-# ── Move window to monitor (alt + ctrl + shift + W/S/D) ─────────
-win + alt + ctrl + shift + w : komorebic move-to-monitor up
-win + alt + ctrl + shift + s : komorebic move-to-monitor down
-win + alt + ctrl + shift + d : komorebic move-to-monitor right
+# ── Move window to monitor (ctrl + alt + arrows) ────────────────
+win + ctrl + alt + up      : komorebic move-to-monitor up
+win + ctrl + alt + down    : komorebic move-to-monitor down
+win + ctrl + alt + right   : komorebic move-to-monitor right
 
-# ── Workspaces (win + 1..9) ─────────────────────────────────────
+# ── Workspaces (win + 1..2) ─────────────────────────────────────
 win + 1                 : komorebic focus-workspace 0
 win + 2                 : komorebic focus-workspace 1
-win + 3                 : komorebic focus-workspace 2
-win + 4                 : komorebic focus-workspace 3
-win + 5                 : komorebic focus-workspace 4
-win + 6                 : komorebic focus-workspace 5
-win + 7                 : komorebic focus-workspace 6
-win + 8                 : komorebic focus-workspace 7
-win + 9                 : komorebic focus-workspace 8
 
-# ── Move window to workspace (win + shift + 1..9) ───────────────
+# ── Move window to workspace (win + shift + 1..2) ───────────────
 win + shift + 1         : komorebic move-to-workspace 0
 win + shift + 2         : komorebic move-to-workspace 1
-win + shift + 3         : komorebic move-to-workspace 2
-win + shift + 4         : komorebic move-to-workspace 3
-win + shift + 5         : komorebic move-to-workspace 4
-win + shift + 6         : komorebic move-to-workspace 5
-win + shift + 7         : komorebic move-to-workspace 6
-win + shift + 8         : komorebic move-to-workspace 7
-win + shift + 9         : komorebic move-to-workspace 8
+
+# ── Cycle workspaces (replaces Windows virtual desktop shortcuts) ─
+win + ctrl + left       : komorebic cycle-workspace previous
+win + ctrl + right      : komorebic cycle-workspace next
