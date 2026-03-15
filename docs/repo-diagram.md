@@ -1,0 +1,159 @@
+# Repository Diagram
+
+## High-Level Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        uranows/dotfiles                              │
+│                     managed by chezmoi                               │
+│                                                                     │
+│  ┌────────────┐   ┌──────────────────┐   ┌───────────────────────┐  │
+│  │   Shell    │   │  Linux Desktop   │   │   Windows Desktop     │  │
+│  │            │   │  (Hyprland)      │   │   (komorebi)          │  │
+│  │ • zsh      │   │ • Hyprland (WM)  │   │ • komorebi (WM)      │  │
+│  │ • starship │   │ • Waybar (bar)   │   │ • whkd (hotkeys)     │  │
+│  │ • fzf      │   │ • Kitty (term)   │   │ • zebar (bar)        │  │
+│  │ • zoxide   │   │ • Wofi (launch)  │   │ • Win Terminal        │  │
+│  │ • direnv   │   │ • Hyprpaper (bg) │   │ • PowerShell 7        │  │
+│  └────────────┘   └──────────────────┘   └───────────────────────┘  │
+│                                                                     │
+│  ┌────────────┐   ┌──────────────────┐   ┌───────────────────────┐  │
+│  │ CLI Tools  │   │     System       │   │   Setup & Packages    │  │
+│  │            │   │                  │   │                       │  │
+│  │ • eza      │   │ • OpenVPN (age)  │   │ • bootstrap-arch.sh   │  │
+│  │ • bat      │   │ • polkit rules   │   │ • install-packages.*  │  │
+│  │ • ripgrep  │   │ • DNS scripts    │   │ • pacman.txt          │  │
+│  │ • fd       │   │ • systemd hooks  │   │ • winget.txt          │  │
+│  │ • tmux     │   │                  │   │ • apt.txt             │  │
+│  │ • neovim   │   │                  │   │                       │  │
+│  └────────────┘   └──────────────────┘   └───────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+## File Mapping (chezmoi → filesystem)
+
+```
+dotfiles repo                          Target filesystem
+─────────────                          ─────────────────
+
+dot_zshrc             ──────────────►  ~/.zshrc
+dot_bashrc            ──────────────►  ~/.bashrc
+dot_gitconfig         ──────────────►  ~/.gitconfig
+dot_envrc             ──────────────►  ~/.envrc
+
+dot_config/
+├── hypr/
+│   └── hyprland.conf ──────────────►  ~/.config/hypr/hyprland.conf
+├── waybar/
+│   ├── config        ──────────────►  ~/.config/waybar/config
+│   ├── config-modules.json ────────►  ~/.config/waybar/config-modules.json
+│   └── style.css     ──────────────►  ~/.config/waybar/style.css
+├── kitty/
+│   └── kitty.conf    ──────────────►  ~/.config/kitty/kitty.conf
+├── wofi/
+│   ├── config        ──────────────►  ~/.config/wofi/config
+│   └── style.css     ──────────────►  ~/.config/wofi/style.css
+├── starship.toml     ──────────────►  ~/.config/starship.toml
+└── direnv/
+    └── lib/dotenv.bash ────────────►  ~/.config/direnv/lib/dotenv.bash
+
+etc/                                   (applied with sudo)
+├── openvpn/
+│   ├── client/
+│   │   └── encrypted_client.conf.age ►  /etc/openvpn/client/client.conf
+│   └── scripts/
+│       ├── dns-up.sh ──────────────►  /etc/openvpn/scripts/dns-up.sh
+│       └── dns-down.sh ───────────►  /etc/openvpn/scripts/dns-down.sh
+└── polkit-1/
+    └── rules.d/
+        └── 49-openvpn-resolved.rules ► /etc/polkit-1/rules.d/...
+
+apps/                                  (Windows only, via chezmoi mappings)
+├── komorebi/         ──────────────►  ~/komorebi.json
+├── whkd/             ──────────────►  ~/.config/whkd/whkdrc
+├── zebar/            ──────────────►  ~/.glzr/zebar/starter/
+├── powershell/       ──────────────►  ~/Documents/PowerShell/...
+└── windows_terminal/ ──────────────►  %LOCALAPPDATA%/Packages/.../settings.json
+```
+
+## Monitor Layout
+
+```
+              ┌─────────────────────────┐
+              │   HDMI-A-1 (top)        │
+              │   2560×1080 @ 60Hz      │
+              │   stacked layout        │
+              └─────────────────────────┘
+┌──────────────────────────────────────────┐  ┌──────────────┐
+│          DP-2 (center)                   │  │  eDP-1       │
+│          3440×1440 @ 160Hz               │  │  1920×1080   │
+│          master layout                   │  │  @ 60Hz      │
+│          (primary ultrawide)             │  │  scale 1.5x  │
+└──────────────────────────────────────────┘  └──────────────┘
+```
+
+## Setup Flow
+
+```
+                    ┌──────────────┐
+                    │  git clone   │
+                    └──────┬───────┘
+                           │
+                    ┌──────▼───────┐
+                    │ chezmoi init │
+                    └──────┬───────┘
+                           │
+              ┌────────────┼────────────┐
+              │            │            │
+       ┌──────▼──────┐    │    ┌───────▼───────┐
+       │    Linux     │    │    │    Windows     │
+       └──────┬──────┘    │    └───────┬───────┘
+              │            │            │
+   ┌──────────▼──────────┐ │  ┌────────▼────────┐
+   │ bootstrap-arch.sh   │ │  │ winget install   │
+   │ install-packages.sh │ │  │ setup-tweaks.ps1 │
+   └──────────┬──────────┘ │  └────────┬────────┘
+              │            │            │
+              └────────────┼────────────┘
+                           │
+                    ┌──────▼───────┐
+                    │ chezmoi apply│
+                    │   (-v)       │
+                    └──────┬───────┘
+                           │
+              ┌────────────┼────────────┐
+              │            │            │
+       ┌──────▼──────┐  ┌─▼──┐  ┌─────▼──────┐
+       │  ~/.*       │  │etc/│  │ apps/      │
+       │  ~/.config/ │  │    │  │ (Windows)  │
+       └─────────────┘  └────┘  └────────────┘
+                           │
+                    ┌──────▼───────────────┐
+                    │ post-apply hooks     │
+                    │ (openvpn perms, etc) │
+                    └──────────────────────┘
+```
+
+## Platform Selection (chezmoiignore)
+
+```
+                    ┌─────────────────┐
+                    │  chezmoi apply  │
+                    └────────┬────────┘
+                             │
+                    ┌────────▼────────┐
+                    │  detect OS      │
+                    └────────┬────────┘
+                             │
+              ┌──────────────┼──────────────┐
+              │                             │
+       ┌──────▼──────┐              ┌──────▼──────┐
+       │   Linux      │              │   Windows    │
+       │              │              │              │
+       │ ✓ dot_zshrc  │              │ ✓ apps/*     │
+       │ ✓ dot_config │              │ ✓ dot_zshrc  │
+       │ ✓ etc/*      │              │ ✗ dot_config │
+       │ ✓ scripts/*  │              │ ✗ etc/*      │
+       │ ✗ apps/*     │              │ ✗ scripts/*  │
+       └──────────────┘              └──────────────┘
+```
