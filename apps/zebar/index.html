@@ -13,97 +13,18 @@
     import * as zebar from 'https://esm.sh/zebar@3.0';
 
     const providers = zebar.createProviderGroup({
-      komorebi: { type: 'komorebi' },
-      date: { type: 'date', formatting: 'HH:mm', refreshInterval: 30000 },
-      dateFull: { type: 'date', formatting: 'dd/MM', refreshInterval: 60000 },
       cpu: { type: 'cpu', refreshInterval: 3000 },
       memory: { type: 'memory', refreshInterval: 5000 },
       network: { type: 'network', refreshInterval: 2000 },
-      audio: { type: 'audio' },
-      systray: { type: 'systray' },
     });
 
-    // ── Icon cache: hwnd → base64 data URL ─────────────────────────
-    const iconCache = {};
-    const iconPending = {};
+    const DAEMON_PS1 = 'C:\\Users\\rcamara\\.glzr\\zebar\\local.right-bar\\daemon.ps1';
+    const BT_READ_CMD = 'if(Test-Path $env:TEMP\\zebar-bt.txt){Get-Content $env:TEMP\\zebar-bt.txt}else{"null"}';
 
-    function extractIconByHwnd(hwnd, onDone) {
-      if (!hwnd || iconCache[hwnd] || iconCache[hwnd] === null || iconPending[hwnd]) return;
-      iconPending[hwnd] = true;
-      const cmd = `Add-Type @'
-using System;using System.Runtime.InteropServices;using System.Drawing;using System.IO;
-public class WI{
-  [DllImport("user32.dll")]static extern IntPtr SendMessage(IntPtr h,uint m,IntPtr w,IntPtr l);
-  [DllImport("user32.dll")]static extern IntPtr GetClassLongPtr(IntPtr h,int i);
-  public static string Get(IntPtr h){
-    IntPtr i=SendMessage(h,0x7F,(IntPtr)1,IntPtr.Zero);
-    if(i==IntPtr.Zero)i=SendMessage(h,0x7F,(IntPtr)2,IntPtr.Zero);
-    if(i==IntPtr.Zero)i=GetClassLongPtr(h,-14);
-    if(i==IntPtr.Zero)i=GetClassLongPtr(h,-34);
-    if(i==IntPtr.Zero)return"";
-    var b=Icon.FromHandle(i).ToBitmap();var m=new MemoryStream();
-    b.Save(m,System.Drawing.Imaging.ImageFormat.Png);
-    return Convert.ToBase64String(m.ToArray());
-  }
-}
-'@ -ReferencedAssemblies System.Drawing
-[WI]::Get([IntPtr]${hwnd})`;
-      zebar.shellExec('powershell', ['-NoProfile', '-Command', cmd])
-        .then(r => {
-          const b64 = (r?.stdout || '').trim();
-          iconCache[hwnd] = (b64 && b64.length > 20) ? `data:image/png;base64,${b64}` : null;
-          delete iconPending[hwnd];
-          onDone();
-        })
-        .catch(() => {
-          iconCache[hwnd] = null;
-          delete iconPending[hwnd];
-        });
-    }
-
-    function focusWindow(hwnd) {
-      if (!hwnd) return;
-      zebar.shellExec('powershell', [
-        '-NoProfile', '-Command',
-        `Add-Type 'using System;using System.Runtime.InteropServices;public class FW{[DllImport("user32.dll")]public static extern bool SetForegroundWindow(IntPtr h);}';[FW]::SetForegroundWindow([IntPtr]${hwnd})`
-      ]);
-    }
-
-    function isPrimaryMonitor(km) {
-      if (!km?.currentMonitor) return false;
-      const s = km.currentMonitor.workAreaSize || km.currentMonitor.size;
-      return s.left === 0 && s.top === 0;
-    }
-
-    function getWindowsForMonitor(km) {
-      if (!km?.displayedWorkspace) return [];
-      const ws = km.displayedWorkspace;
-      const wins = [];
-      // Try both zebar provider naming conventions
-      const containers = ws.tilingContainers || ws.containers || [];
-      containers.forEach(c => {
-        const cWindows = c.windows || [];
-        cWindows.forEach(w => wins.push(w));
-      });
-      if (ws.monocleContainer) {
-        const mWindows = ws.monocleContainer.windows || [];
-        mWindows.forEach(w => wins.push(w));
-      }
-      if (ws.maximizedWindow) wins.push(ws.maximizedWindow);
-      return wins;
-    }
-
-    // ── Bluetooth headset battery polling ──────────────────────────
     let btBattery = null;
-    let btLastPoll = 0;
-    const BT_POLL_MS = 60000;
 
-    function pollBtBattery(onDone) {
-      const now = Date.now();
-      if (now - btLastPoll < BT_POLL_MS) return;
-      btLastPoll = now;
-      const cmd = "Get-PnpDevice -FriendlyName '*soundcore*' | ForEach-Object { ($_ | Get-PnpDeviceProperty -KeyName '{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2' -EA SilentlyContinue | Where-Object Type -ne Empty).Data } | Where-Object { $_ } | Select -First 1";
-      zebar.shellExec('powershell', ['-NoProfile', '-Command', cmd])
+    function readBtBattery(onDone) {
+      zebar.shellExec('powershell', ['-NoProfile', '-Command', BT_READ_CMD])
         .then(r => {
           const val = parseInt((r?.stdout || '').trim(), 10);
           btBattery = isNaN(val) ? null : val;
@@ -129,7 +50,6 @@ public class WI{
       return { down: d.val, downUnit: d.unit, up: u.val, upUnit: u.unit };
     }
 
-    // ── Meter bar component ──────────────────────────────────────────
     function Meter({ pct, label, value }) {
       const color = pct >= 90 ? 'var(--accent-err)' : pct >= 70 ? 'var(--accent-warn)' : 'var(--accent)';
       return (
@@ -147,152 +67,55 @@ public class WI{
       const [output, setOutput] = useState(providers.outputMap);
       const [, setTick] = useState(0);
       const rerender = () => setTick(t => t + 1);
+
       useEffect(() => {
         providers.onOutput(() => setOutput({ ...providers.outputMap }));
+        // Start background daemon for z-order fix + BT battery polling
+        zebar.shellExec('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', DAEMON_PS1]).catch(() => {});
+        // Read BT battery file every 60s
+        readBtBattery(rerender);
+        const btInterval = setInterval(() => readBtBattery(rerender), 60000);
+        return () => clearInterval(btInterval);
       }, []);
 
-      const km = output.komorebi;
-      const workspaces = (km?.currentWorkspaces || []).slice(0, 2);
-      const focusedName = km?.displayedWorkspace?.name;
-      const primary = isPrimaryMonitor(km);
-      const windows = getWindowsForMonitor(km);
-      const focusedHwnd = km?.focusedWorkspace?.tilingContainers?.[km?.focusedWorkspace?.focusedContainerIndex]?.windows?.[0]?.hwnd
-        || km?.focusedWorkspace?.containers?.[km?.focusedWorkspace?.focusedContainerIndex]?.windows?.[0]?.hwnd
-        || km?.focusedWorkspace?.maximizedWindow?.hwnd;
-
-      // Poll BT battery on primary monitor
-      if (primary) pollBtBattery(rerender);
-
-      // Trigger icon extraction for any new window
-      windows.forEach(w => {
-        if (w.hwnd) extractIconByHwnd(w.hwnd, rerender);
-      });
-
-      const cpuUsage = Math.round(output.cpu?.usage || 0);
+      const cpuPct = Math.round(output.cpu?.usage || 0);
       const mem = output.memory;
-      const memUsed = mem ? formatGB(mem.usedMemory) : '0';
-      const memTotal = mem ? formatGB(mem.totalMemory) : '0';
+      const memUsed = mem ? formatGB(mem.usedMemory) : 0;
+      const memTotal = mem ? formatGB(mem.totalMemory) : 0;
       const memPct = Math.round(mem?.usage || 0);
-
-      const playback = output.audio?.defaultPlaybackDevice;
-      const volume = playback ? Math.round(playback.volume) : null;
-      const isMuted = playback?.isMuted;
-
       const speed = formatSpeed(output.network?.traffic);
 
       return (
         <div className="bar">
-          {/* ── Top: Workspaces + Meters (primary) ── */}
           <div className="bar__top">
-            {/* ── Workspaces ── */}
-            {workspaces.map((ws, i) => {
-              const hasTiling = ws.tilingContainers?.length > 0;
-              const hasMonocle = ws.monocleContainer != null;
-              const hasMax = ws.maximizedWindow != null;
-              const populated = hasTiling || hasMonocle || hasMax;
-              const focused = ws.name === focusedName;
-              const cls = `workspace${focused ? ' focused' : ''}${populated && !focused ? ' populated' : ''}`;
-              return <button key={i} className={cls}>{ws.name}</button>;
-            })}
-
-            {primary && (
-              <>
-                <div className="metrics">
-                  <Meter pct={cpuUsage} label="CPU" value={cpuUsage + '%'} />
-                  <Meter pct={memPct} label="MEM" value={memUsed + '/' + memTotal + 'G'} />
-                  <div className="net-widget">
-                    <span className="meter__label">NET</span>
-                    <div className="net-row">
-                      <span className="net-arrow net-down">{'\u25BC'}</span>
-                      <span className="net-value">{speed.down}</span>
-                      <span className="net-unit">{speed.downUnit}</span>
-                    </div>
-                    <div className="net-row">
-                      <span className="net-arrow net-up">{'\u25B2'}</span>
-                      <span className="net-value">{speed.up}</span>
-                      <span className="net-unit">{speed.upUnit}</span>
-                    </div>
-                  </div>
+            <div className="metrics">
+              <Meter pct={cpuPct} label="CPU" value={cpuPct + '%'} />
+              <Meter pct={memPct} label="MEM" value={memUsed + '/' + memTotal + 'G'} />
+              <div className="net-widget">
+                <span className="meter__label">NET</span>
+                <div className="net-row">
+                  <span className="net-arrow net-down">{'\u25BC'}</span>
+                  <span className="net-value">{speed.down}</span>
+                  <span className="net-unit">{speed.downUnit}</span>
                 </div>
-              </>
-            )}
-
-            <div className="divider" />
-          </div>
-
-          {/* ── Center: Taskbar ── */}
-          <div className="bar__center">
-            <div className="taskbar">
-              {windows.map((w, i) => {
-                const icon = iconCache[w.hwnd];
-                return (
-                  <div
-                    key={w.hwnd || i}
-                    className={`taskbar__item${w.hwnd === focusedHwnd ? ' taskbar__item--focused' : ''}`}
-                    title={w.title}
-                    onClick={() => focusWindow(w.hwnd)}
-                  >
-                    {icon ? (
-                      <img className="taskbar__img" src={icon} alt="" />
-                    ) : (
-                      <span className="taskbar__icon">{(w.exe || '?').replace('.exe','').slice(0,2).toUpperCase()}</span>
-                    )}
-                  </div>
-                );
-              })}
+                <div className="net-row">
+                  <span className="net-arrow net-up">{'\u25B2'}</span>
+                  <span className="net-value">{speed.up}</span>
+                  <span className="net-unit">{speed.upUnit}</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* ── Bottom: Systray + Audio + Battery + Clock ── */}
-          <div className="bar__bottom">
-            <div className="divider" />
-            {primary && output.systray && (
-              <>
-                <div className="systray">
-                  {output.systray.icons.map(icon => (
-                    <img
-                      key={icon.id}
-                      className="systray-icon"
-                      src={icon.iconUrl}
-                      title={icon.tooltip}
-                      onClick={e => { e.preventDefault(); output.systray.onLeftClick(icon.id); }}
-                      onContextMenu={e => { e.preventDefault(); output.systray.onRightClick(icon.id); }}
-                    />
-                  ))}
-                </div>
-                <div className="divider" />
-              </>
-            )}
-
-            {/* ── BT headset battery (primary only) ── */}
-            {primary && btBattery !== null && (
+          {btBattery !== null && (
+            <div className="bar__bottom">
+              <div className="divider" />
               <div className="info-widget">
                 <span className="info-value">{btBattery}%</span>
                 <span className="info-label">headset</span>
               </div>
-            )}
-
-            {/* ── Audio (primary only) ── */}
-            {primary && playback && (
-              <>
-                <div className="info-widget" title={playback.name}>
-                  <span className="info-value">{isMuted ? 'M' : volume + '%'}</span>
-                  <span className="info-label">{(() => {
-                    const n = playback.name || '';
-                    const m = n.match(/\(([^)]+)\)/);
-                    return m ? m[1] : n;
-                  })()}</span>
-                </div>
-                <div className="divider" />
-              </>
-            )}
-
-            {/* ── Clock ── */}
-            <div className="clock">
-              <span className="clock__time">{output.date?.formatted || '--:--'}</span>
-              <span className="clock__date">{output.dateFull?.formatted || '--/--'}</span>
             </div>
-          </div>
+          )}
         </div>
       );
     }

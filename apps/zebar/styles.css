@@ -1,6 +1,6 @@
 /* ── Base ──────────────────────────────────────────────────────── */
-/* All sizes use vw so they scale proportionally across monitors.
-   Reference: 48px bar → 100vw. 1px ≈ 2.08vw */
+/* All sizes use vw so they scale proportionally with the widget width.
+   Reference: 59px widget → 100vw */
 :root {
   --bg: #1c2023;
   --bg-hover: #2a2f33;
@@ -30,32 +30,26 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   width: 100vw;
   height: 100vh;
   padding: var(--gap) 0;
-  background: var(--bg);
-  border-left: 1px solid var(--bg-hover);
+  background: transparent;
 }
 
-.bar__top,
+.bar__top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap);
+}
+
 .bar__bottom {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--gap);
+  gap: 14vw;
 }
-
-.bar__center {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--gap);
-}
-
-.bar__bottom { margin-top: auto; gap: 21vw; }
 
 /* ── Metrics block ────────────────────────────────────────────── */
 .metrics {
@@ -137,76 +131,7 @@ body {
   min-width: 15vw;
 }
 
-/* ── Workspace buttons ────────────────────────────────────────── */
-.workspace {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 67vw;
-  height: 67vw;
-  border: none;
-  border-radius: var(--radius);
-  background: transparent;
-  color: var(--fg-dim);
-  font-size: 25vw;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.workspace:hover { background: var(--bg-hover); color: var(--fg); }
-.workspace.focused { background: var(--accent); color: var(--bg); font-weight: 700; }
-.workspace.populated { color: var(--fg); }
-
-/* ── Taskbar (running apps as icons) ─────────────────────────── */
-.taskbar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4vw;
-  max-height: 40vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.taskbar::-webkit-scrollbar { width: 0; }
-
-.taskbar__item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 75vw;
-  height: 75vw;
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.taskbar__item:hover { background: var(--bg-hover); }
-.taskbar__item--focused { background: var(--bg-hover); border-left: 2px solid var(--accent); }
-.taskbar__item--focused .taskbar__img { opacity: 1; }
-.taskbar__item--focused .taskbar__icon { color: var(--fg); }
-
-.taskbar__icon {
-  font-size: 23vw;
-  font-weight: 700;
-  color: var(--fg-dim);
-  line-height: 1;
-}
-
-.taskbar__item:hover .taskbar__icon { color: var(--fg); }
-
-.taskbar__img {
-  width: 50vw;
-  height: 50vw;
-  object-fit: contain;
-  opacity: 0.85;
-  transition: opacity 0.15s ease;
-}
-
-.taskbar__item:hover .taskbar__img { opacity: 1; }
-
-/* ── Info widget (audio, headset) ─────────────────────────────── */
+/* ── Info widget (BT battery) ─────────────────────────────────── */
 .info-widget {
   display: flex;
   flex-direction: column;
@@ -229,44 +154,6 @@ body {
   word-wrap: break-word;
   overflow-wrap: break-word;
   line-height: 1.2;
-}
-
-/* ── Systray ──────────────────────────────────────────────────── */
-.systray {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6vw;
-  justify-items: center;
-  padding: 0 4vw;
-}
-
-.systray-icon {
-  width: 30vw;
-  height: 30vw;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.15s ease;
-}
-
-.systray-icon:hover { opacity: 1; }
-
-/* ── Clock ────────────────────────────────────────────────────── */
-.clock {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4vw;
-}
-
-.clock__time {
-  font-size: 27vw;
-  font-weight: 600;
-  color: var(--fg);
-}
-
-.clock__date {
-  font-size: 19vw;
-  color: var(--fg-dim);
 }
 
 /* ── Divider ──────────────────────────────────────────────────── */

@@ -2,7 +2,7 @@
 
 # ── Reload ───────────────────────────────────────────────────────
 win + shift + r         : komorebic reload-configuration
-win + alt + r           : taskkill /f /im zebar.exe; $env:RUST_LOG='error'; Start-Process zebar -WindowStyle hidden; Start-Sleep 3; komorebic retile
+win + alt + r           : taskkill /f /im zebar.exe; Get-Process powershell -EA SilentlyContinue | Where-Object {$_.Id -ne $PID} | Stop-Process -Force -EA SilentlyContinue; Start-Sleep 3; $env:RUST_LOG='error'; Start-Process zebar -WindowStyle hidden; Start-Sleep 3; komorebic retile
 
 # ── Close ────────────────────────────────────────────────────────
 win + q                 : komorebic close
