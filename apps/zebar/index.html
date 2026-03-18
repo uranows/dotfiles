@@ -8,15 +8,22 @@
 <body>
   <div id="root"></div>
   <script type="text/babel" data-type="module">
-    import React, { useState, useEffect } from 'https://esm.sh/react@18?dev';
+    import React, { useState, useEffect, useRef } from 'https://esm.sh/react@18?dev';
     import { createRoot } from 'https://esm.sh/react-dom@18/client?dev';
     import * as zebar from 'https://esm.sh/zebar@3.0';
 
     const providers = zebar.createProviderGroup({
+      komorebi: { type: 'komorebi' },
       cpu: { type: 'cpu', refreshInterval: 3000 },
       memory: { type: 'memory', refreshInterval: 5000 },
       network: { type: 'network', refreshInterval: 2000 },
     });
+
+    function isPrimaryMonitor(km) {
+      if (!km?.currentMonitor) return false;
+      const s = km.currentMonitor.workAreaSize || km.currentMonitor.size;
+      return s.left === 0 && s.top === 0;
+    }
 
     const DAEMON_PS1 = 'C:\\Users\\rcamara\\.glzr\\zebar\\local.right-bar\\daemon.ps1';
     const BT_READ_CMD = 'if(Test-Path $env:TEMP\\zebar-bt.txt){Get-Content $env:TEMP\\zebar-bt.txt}else{"null"}';
@@ -67,16 +74,26 @@
       const [output, setOutput] = useState(providers.outputMap);
       const [, setTick] = useState(0);
       const rerender = () => setTick(t => t + 1);
+      const daemonStarted = useRef(false);
+
+      const km = output.komorebi;
+      const primary = isPrimaryMonitor(km);
+      const workspaces = (km?.currentWorkspaces || []).slice(0, 2);
+      const focusedName = km?.displayedWorkspace?.name;
 
       useEffect(() => {
         providers.onOutput(() => setOutput({ ...providers.outputMap }));
-        // Start background daemon for z-order fix + BT battery polling
-        zebar.shellExec('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', DAEMON_PS1]).catch(() => {});
-        // Read BT battery file every 60s
-        readBtBattery(rerender);
-        const btInterval = setInterval(() => readBtBattery(rerender), 60000);
-        return () => clearInterval(btInterval);
       }, []);
+
+      useEffect(() => {
+        if (primary && !daemonStarted.current) {
+          daemonStarted.current = true;
+          zebar.shellExec('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', DAEMON_PS1]).catch(() => {});
+          readBtBattery(rerender);
+          const btInterval = setInterval(() => readBtBattery(rerender), 60000);
+          return () => clearInterval(btInterval);
+        }
+      }, [primary]);
 
       const cpuPct = Math.round(output.cpu?.usage || 0);
       const mem = output.memory;
@@ -88,34 +105,38 @@
       return (
         <div className="bar">
           <div className="bar__top">
-            <div className="metrics">
-              <Meter pct={cpuPct} label="CPU" value={cpuPct + '%'} />
-              <Meter pct={memPct} label="MEM" value={memUsed + '/' + memTotal + 'G'} />
-              <div className="net-widget">
-                <span className="meter__label">NET</span>
-                <div className="net-row">
-                  <span className="net-arrow net-down">{'\u25BC'}</span>
-                  <span className="net-value">{speed.down}</span>
-                  <span className="net-unit">{speed.downUnit}</span>
-                </div>
-                <div className="net-row">
-                  <span className="net-arrow net-up">{'\u25B2'}</span>
-                  <span className="net-value">{speed.up}</span>
-                  <span className="net-unit">{speed.upUnit}</span>
-                </div>
-              </div>
+            <div className="workspaces">
+              {workspaces.map((ws, i) => {
+                const focused = ws.name === focusedName;
+                return <span key={i} className={`ws-dot${focused ? ' ws-dot--active' : ''}`} />;
+              })}
             </div>
+            {primary && (
+              <div className="metrics">
+                <Meter pct={cpuPct} label="CPU" value={cpuPct + '%'} />
+                <Meter pct={memPct} label="MEM" value={memUsed + '/' + memTotal + 'G'} />
+                <div className="net-widget">
+                  <span className="meter__label">NET</span>
+                  <div className="net-row">
+                    <span className="net-arrow net-down">{'\u25BC'}</span>
+                    <span className="net-value">{speed.down}</span>
+                    <span className="net-unit">{speed.downUnit}</span>
+                  </div>
+                  <div className="net-row">
+                    <span className="net-arrow net-up">{'\u25B2'}</span>
+                    <span className="net-value">{speed.up}</span>
+                    <span className="net-unit">{speed.upUnit}</span>
+                  </div>
+                </div>
+              {btBattery !== null && (
+                <div className="meter">
+                  <span className="meter__label">BT</span>
+                  <span className="meter__value">{btBattery}%</span>
+                </div>
+              )}
+              </div>
+            )}
           </div>
-
-          {btBattery !== null && (
-            <div className="bar__bottom">
-              <div className="divider" />
-              <div className="info-widget">
-                <span className="info-value">{btBattery}%</span>
-                <span className="info-label">headset</span>
-              </div>
-            </div>
-          )}
         </div>
       );
     }

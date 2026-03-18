@@ -24,9 +24,27 @@
           "anchor": "top_right",
           "offsetX": "0px",
           "offsetY": "50px",
-          "width": "59px",
+          "width": "63px",
           "height": "180px",
           "monitorSelection": { "type": "index", "match": 0 }
+        },
+        {
+          "name": "top-ultrawide",
+          "anchor": "top_right",
+          "offsetX": "0px",
+          "offsetY": "50px",
+          "width": "62px",
+          "height": "30px",
+          "monitorSelection": { "type": "index", "match": 1 }
+        },
+        {
+          "name": "laptop",
+          "anchor": "top_right",
+          "offsetX": "0px",
+          "offsetY": "50px",
+          "width": "62px",
+          "height": "30px",
+          "monitorSelection": { "type": "index", "match": 2 }
         }
       ]
     }

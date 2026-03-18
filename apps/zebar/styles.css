@@ -13,7 +13,9 @@
   --gap: 12.5vw;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+*, html { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+::-webkit-scrollbar { display: none; width: 0; height: 0; }
 
 body {
   font-family: 'Segoe UI', 'Cascadia Code', sans-serif;
@@ -27,13 +29,13 @@ body {
 
 /* ── Bar container (vertical) ─────────────────────────────────── */
 .bar {
+  position: fixed;
+  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  width: 100vw;
-  height: 100vh;
-  padding: var(--gap) 0;
+  justify-content: center;
+  overflow: hidden;
   background: transparent;
 }
 
@@ -41,14 +43,29 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
   gap: var(--gap);
 }
 
-.bar__bottom {
+/* ── Workspace dots ───────────────────────────────────────────── */
+.workspaces {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 14vw;
+  gap: 6px;
+}
+
+.ws-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--fg-dim);
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.ws-dot--active {
+  background: linear-gradient(135deg, #61afef, #4a90d9);
 }
 
 /* ── Metrics block ────────────────────────────────────────────── */
@@ -131,35 +148,3 @@ body {
   min-width: 15vw;
 }
 
-/* ── Info widget (BT battery) ─────────────────────────────────── */
-.info-widget {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4vw;
-  padding: 8vw 0;
-}
-
-.info-value {
-  font-size: 23vw;
-  font-weight: 600;
-  color: var(--fg);
-}
-
-.info-label {
-  font-size: 17vw;
-  color: var(--fg-dim);
-  max-width: 96vw;
-  text-align: center;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  line-height: 1.2;
-}
-
-/* ── Divider ──────────────────────────────────────────────────── */
-.divider {
-  width: 50vw;
-  height: 1px;
-  background: var(--bg-hover);
-  margin: 4vw 0;
-}
